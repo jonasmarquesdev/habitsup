@@ -1,6 +1,10 @@
+"use client";
+
 import * as Popover from "@radix-ui/react-popover";
+import * as Checkbox from "@radix-ui/react-checkbox";
 import { ProgressBar } from "./ProgressBar";
 import clsx from "clsx";
+import { Check } from "phosphor-react";
 
 interface HabitDayProps {
   completed: number;
@@ -19,7 +23,9 @@ export function HabitDay({ amount, completed }: HabitDayProps) {
           'bg-violet-800 border-violet-600': completedPercentage >= 20 && completedPercentage < 40,
           'bg-violet-700 border-violet-500': completedPercentage >= 40 && completedPercentage < 60,
           'bg-violet-600 border-violet-500': completedPercentage >= 60 && completedPercentage < 80,
-          'bg-violet-500 border-violet-400': completedPercentage >= 80,
+          'bg-violet-500 border-violet-400': completedPercentage >= 80 && completedPercentage < 100,
+          'bg-violet-400 border-violet-300': completedPercentage === 100,
+          'cursor-pointer': true,
         })}
       />
 
@@ -29,6 +35,22 @@ export function HabitDay({ amount, completed }: HabitDayProps) {
           <span className="mt-1 font-extrabold leading-tight text-3xl">17/01</span>
 
           <ProgressBar progress={completedPercentage} />
+
+          <div className="mt-6 flex flex-col gap-3">
+            <Checkbox.Root
+              className="flex items-center gap-3 group"
+            >
+              <div className="h-8 w-8 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 rounded-lg group-data-[state=checked]:bg-green-500">
+                <Checkbox.Indicator>
+                  <Check size={20} className="text-white" />
+                </Checkbox.Indicator>
+              </div>
+
+              <span className="font-semibold text-xl text-white leading-tight group-data-[state=checked]:line-through group-data-[state=checked]:text-zinc-400">
+                Beber 2L de água
+              </span>
+            </Checkbox.Root>
+          </div>
 
           <Popover.Arrow height={8} width={16} className="fill-zinc-900" />
         </Popover.Content>

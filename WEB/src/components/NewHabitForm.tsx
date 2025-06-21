@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/axios";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
 import { useState } from "react";
@@ -21,12 +22,26 @@ export function NewHabitForm() {
   function createNewHabit(event: React.FormEvent) {
     event.preventDefault();
 
-    console.log(title, weekDays);
+    if (!title || weekDays.length === 0) {
+      return;
+    }
+
+    api.post("habits", {
+      title,
+      weekDays,
+    });
+
+    setTitle("");
+    setWeekDays([]);
+
+    alert('criou hein')
   }
 
   function handleToggleWeekDay(weekDayIndexSelected: number) {
     if (weekDays.includes(weekDayIndexSelected)) {
-      const weekDayWithRemovedOne = weekDays.filter(day => day !== weekDayIndexSelected);
+      const weekDayWithRemovedOne = weekDays.filter(
+        (day) => day !== weekDayIndexSelected
+      );
       setWeekDays(weekDayWithRemovedOne);
     } else {
       const weekDayWithAddedOne = [...weekDays, weekDayIndexSelected];
@@ -46,6 +61,7 @@ export function NewHabitForm() {
         placeholder="ex.: Exercícios, dormir bem, etc..."
         className="p-4 rounded-lg mt-3 bg-zinc-800 text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-transparent"
         autoFocus
+        value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
@@ -58,6 +74,7 @@ export function NewHabitForm() {
           <Checkbox.Root
             key={weekDay}
             className="flex items-center gap-3 group"
+            checked={weekDays.includes(index)}
             onCheckedChange={() => handleToggleWeekDay(index)}
           >
             <div className="h-8 w-8 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 rounded-lg group-data-[state=checked]:bg-green-500">
@@ -66,9 +83,7 @@ export function NewHabitForm() {
               </Checkbox.Indicator>
             </div>
 
-            <span className="text-white leading-tight">
-              {weekDay}
-            </span>
+            <span className="text-white leading-tight">{weekDay}</span>
           </Checkbox.Root>
         ))}
       </div>

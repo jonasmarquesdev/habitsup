@@ -6,9 +6,14 @@ import { NewHabitForm } from "./NewHabitForm";
 export function Header() {
   return (
     <div className="w-full max-w-3xl mx-auto flex items-center justify-between">
-      <h1 className="text-4xl font-bold text-violet-500 tracking-tight">
-        Activity System
-      </h1>
+      <div className="flex gap-3">
+        <h1 className="text-4xl font-bold text-white tracking-tight">
+          Sys
+        </h1>
+        <h1 className="text-4xl font-bold text-violet-500 tracking-tight">
+          Activity
+        </h1>
+      </div>
 
       <Dialog.Root>
         <Dialog.Trigger
@@ -16,7 +21,7 @@ export function Header() {
           className="border border-violet-500 font-semibold rounded-lg px-6 py-4 flex items-center gap-3 hover:border-violet-300 transition-colors"
         >
           <Plus size={20} className="text-violet-500" />
-          Novo hábito
+          Nova activity
         </Dialog.Trigger>
 
         <Dialog.Portal>
@@ -28,7 +33,7 @@ export function Header() {
             </Dialog.Close>
 
             <Dialog.Title className="text-3xl leading-tight font-extrabold">
-              Criar hábito
+              Criar activity
             </Dialog.Title>
             
             <NewHabitForm />

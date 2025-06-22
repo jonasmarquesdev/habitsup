@@ -42,7 +42,7 @@ export function HabitDay({ amount = 0, defaultCompleted = 0, date }: HabitDayPro
       />
 
       <Popover.Portal>
-        <Popover.Content className="min-w-[320px] p-6 bg-zinc-900 rounded-2xl flex flex-col">
+        <Popover.Content className="min-w-[320px] p-6 bg-zinc-900 rounded-2xl flex flex-col transition-all">
           <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
           <span className="mt-1 font-extrabold leading-tight text-3xl">{dayAndMonth}</span>
 

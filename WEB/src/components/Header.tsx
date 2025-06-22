@@ -8,16 +8,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full max-w-3xl mx-auto flex items-center justify-between">
-      <div className="flex gap-3">
-        <h1 className="text-4xl font-bold text-white tracking-tight">
-          Sys
-        </h1>
-        <h1 className="text-4xl font-bold text-violet-500 tracking-tight">
-          Activity
-        </h1>
-      </div>
-
+    <div className="w-full max-w-4xl mx-auto flex items-center justify-end">
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger
           type="button"

@@ -4,6 +4,7 @@ import { Check } from "phosphor-react";
 import { useEffect, useState } from "react";
 import dayjs from "../lib/dayjs";
 import clsx from "clsx";
+import { useSummary } from "@/contexts/SummaryContext";
 
 interface HabitListProps {
   date: Date;
@@ -21,6 +22,7 @@ interface HabitInfo {
 
 export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   const [habitsInfo, setHabitsInfo] = useState<HabitInfo>();
+  const { reloadSummary } = useSummary();
 
   useEffect(() => {
     api.get('day', {
@@ -50,6 +52,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     });
 
     onCompletedChanged(completedHabits.length);
+    reloadSummary();
   }
 
   const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());

@@ -3,10 +3,9 @@
 import { generateDatesFromYearBeginning } from "@/utils/generate-dates-from-year-beginning";
 
 import { HabitDay } from "./HabitDay";
-import { useEffect, useState } from "react";
-import { api } from "@/lib/axios";
-import { Summary } from "@/types/summary";
 import dayjs from "dayjs";
+import { useSummary } from "@/contexts/SummaryContext";
+import { useEffect } from "react";
 
 const weekDays = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -15,15 +14,11 @@ const minimumSummaryDatesSize = 18 * 7;
 const amountOfDaysToFill = minimumSummaryDatesSize - summaryDates.length;
 
 export function SummaryTable() {
-  const [summary, setSummary] = useState<Summary>([]);
+  const { summary, reloadSummary } = useSummary();
 
   useEffect(() => {
-    api.get("summary").then((response) => {
-        setSummary(response.data);
-      }).catch((error) => {
-        console.error("Error fetching summary data:", error);
-      });
-  }, []);
+    reloadSummary()
+  }, [reloadSummary, summary]);
 
   return (
     <div className="w-full flex">

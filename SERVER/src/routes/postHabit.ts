@@ -14,6 +14,16 @@ export async function postHabitRoute(app: FastifyInstance) {
 
     const today = dayjs().startOf("day").toDate();
 
+    let day = await prisma.day.findUnique({
+      where: { date: today }
+    });
+
+    if (!day) {
+      day = await prisma.day.create({
+        data: { date: today }
+      });
+    }
+
     await prisma.habit.create({
       data: {
         title,

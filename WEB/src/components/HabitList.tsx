@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import dayjs from "../lib/dayjs";
 import clsx from "clsx";
 import { useSummary } from "@/contexts/SummaryContext";
+import { Skeleton } from "./ui/skeleton";
 
 interface HabitListProps {
   date: Date;
-  onCompletedChanged: (completed: number) => void
+  onCompletedChanged: (completed: number) => void;
 }
 
 interface HabitInfo {
@@ -25,23 +26,28 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   const { reloadSummary } = useSummary();
 
   useEffect(() => {
-    api.get('day', {
-      params: {
-        date: date.toISOString(),
-      },
-    }).then(response => {
-      setHabitsInfo(response.data);
-    })
+    api
+      .get("day", {
+        params: {
+          date: date.toISOString(),
+        },
+      })
+      .then((response) => {
+        setHabitsInfo(response.data);
+      });
   }, [date]);
 
   function handleToggleHabit(habitId: string) {
-    api.patch(`/habits/${habitId}/toggle`)
-    
-    const isHabitAlreadyCompleted = habitsInfo!.completedHabits.includes(habitId);
+    api.patch(`/habits/${habitId}/toggle`);
+
+    const isHabitAlreadyCompleted =
+      habitsInfo!.completedHabits.includes(habitId);
     let completedHabits: string[] = [];
 
     if (isHabitAlreadyCompleted) {
-      completedHabits = habitsInfo!.completedHabits.filter(id => id !== habitId);
+      completedHabits = habitsInfo!.completedHabits.filter(
+        (id) => id !== habitId
+      );
     } else {
       completedHabits = [...habitsInfo!.completedHabits, habitId];
     }
@@ -55,12 +61,31 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     reloadSummary();
   }
 
-  const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());
+  const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());
 
   return (
-    <div className={clsx('mt-6 flex flex-col gap-3', {'opacity-50': isDateInPast})}>
-      {habitsInfo?.possibleHabits.map(habit => {
-        return (
+    <div
+      className={clsx("mt-6 flex flex-col gap-3", {
+        "opacity-50": isDateInPast,
+      })}
+    >
+      {!habitsInfo ? (
+        <>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-6 w-40 rounded" />
+          </div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-6 w-32 rounded" />
+          </div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-6 w-36 rounded" />
+          </div>
+        </>
+      ) : (
+        habitsInfo.possibleHabits.map((habit) => (
           <Checkbox.Root
             key={habit.id}
             onCheckedChange={() => handleToggleHabit(habit.id)}
@@ -73,13 +98,12 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
                 <Check size={20} className="text-white" />
               </Checkbox.Indicator>
             </div>
-
             <span className="font-semibold text-xl text-white leading-tight group-data-[state=checked]:line-through group-data-[state=checked]:text-zinc-400">
               {habit.title}
             </span>
           </Checkbox.Root>
-        )
-      })}
+        ))
+      )}
     </div>
   );
 }

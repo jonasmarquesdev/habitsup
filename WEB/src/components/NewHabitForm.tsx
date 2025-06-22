@@ -15,7 +15,7 @@ const availableWeekDays = [
   "Sábado",
 ];
 
-export function NewHabitForm() {
+export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
   const [title, setTitle] = useState("");
   const [weekDays, setWeekDays] = useState<number[]>([]);
 
@@ -33,8 +33,7 @@ export function NewHabitForm() {
 
     setTitle("");
     setWeekDays([]);
-
-    alert('criou hein')
+    if (onSuccess) onSuccess();
   }
 
   function handleToggleWeekDay(weekDayIndexSelected: number) {

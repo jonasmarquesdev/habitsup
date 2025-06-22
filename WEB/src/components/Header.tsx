@@ -2,8 +2,11 @@
 import { Plus, X } from "phosphor-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { NewHabitForm } from "./NewHabitForm";
+import { useState } from "react";
 
 export function Header() {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="w-full max-w-3xl mx-auto flex items-center justify-between">
       <div className="flex gap-3">
@@ -15,7 +18,7 @@ export function Header() {
         </h1>
       </div>
 
-      <Dialog.Root>
+      <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger
           type="button"
           className="border border-violet-500 font-semibold rounded-lg px-6 py-4 flex items-center gap-3 hover:border-violet-300 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-600 focus:ring-offset-2 focus:ring-offset-background"
@@ -36,7 +39,7 @@ export function Header() {
               Criar activity
             </Dialog.Title>
             
-            <NewHabitForm />
+            <NewHabitForm onSuccess={() => setOpen(false)} />
           </Dialog.Content>
 
         </Dialog.Portal>

@@ -6,6 +6,7 @@ import clsx from "clsx";
 import dayjs from "../lib/dayjs";
 import { HabitList } from "./HabitList";
 import { useState } from "react";
+import { WarningCircle } from "phosphor-react";
 
 interface HabitDayProps {
   date: Date;
@@ -15,6 +16,8 @@ interface HabitDayProps {
 
 export function HabitDay({ amount = 0, defaultCompleted = 0, date }: HabitDayProps) {
   const [completed, setCompleted] = useState(defaultCompleted);
+
+  const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());
 
   const completedPercentage = amount > 0 ? Math.round((completed / amount) * 100) : 0;
   const dayAndMonth = dayjs(date).format("DD/MM");
@@ -44,6 +47,13 @@ export function HabitDay({ amount = 0, defaultCompleted = 0, date }: HabitDayPro
           <span className="mt-1 font-extrabold leading-tight text-3xl">{dayAndMonth}</span>
 
           <ProgressBar progress={completedPercentage} />
+
+          {isDateInPast && (
+            <div className="flex items-center justify-center mt-6 gap-1">
+              <WarningCircle size={20} className="text-red-500" />
+              <span className="text-red-500">Não é possivel alterar uma data passada</span>
+            </div>
+          )}
 
           <HabitList date={date} onCompletedChanged={handleCompletedChanged} />
 

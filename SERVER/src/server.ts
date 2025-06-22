@@ -6,6 +6,7 @@ const app = Fastify();
 
 app.register(cors, {
   origin: "*", // Allow all origins
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allow PATCH and others
 });
 app.register(appRoutes);
 

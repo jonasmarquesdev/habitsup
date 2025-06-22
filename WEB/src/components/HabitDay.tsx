@@ -50,8 +50,8 @@ export function HabitDay({ amount = 0, defaultCompleted = 0, date }: HabitDayPro
 
           {isDateInPast && (
             <div className="flex items-center justify-center mt-6 gap-1">
-              <WarningCircle size={20} className="text-red-500" />
-              <span className="text-red-500">Não é possivel alterar uma data passada</span>
+              <WarningCircle size={20} className="text-red-800" />
+              <span className="text-red-800">Não é possível modificar activity de dias anteriores</span>
             </div>
           )}
 

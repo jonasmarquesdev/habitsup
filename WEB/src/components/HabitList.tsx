@@ -3,6 +3,7 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
 import { useEffect, useState } from "react";
 import dayjs from "../lib/dayjs";
+import clsx from "clsx";
 
 interface HabitListProps {
   date: Date;
@@ -54,7 +55,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());
 
   return (
-    <div className="mt-6 flex flex-col gap-3">
+    <div className={clsx('mt-6 flex flex-col gap-3', {'opacity-50': isDateInPast})}>
       {habitsInfo?.possibleHabits.map(habit => {
         return (
           <Checkbox.Root

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSummary } from "@/contexts/SummaryContext";
 import { api } from "@/lib/axios";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
@@ -18,22 +19,28 @@ const availableWeekDays = [
 export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
   const [title, setTitle] = useState("");
   const [weekDays, setWeekDays] = useState<number[]>([]);
+  const { reloadSummary } = useSummary();
 
-  function createNewHabit(event: React.FormEvent) {
+  async function createNewHabit(event: React.FormEvent) {
     event.preventDefault();
 
     if (!title || weekDays.length === 0) {
       return;
     }
 
-    api.post("habits", {
-      title,
-      weekDays,
-    });
+    try {
+      await api.post("habits", {
+        title,
+        weekDays,
+      });
 
-    setTitle("");
-    setWeekDays([]);
-    if (onSuccess) onSuccess();
+      setTitle("");
+      setWeekDays([]);
+      await reloadSummary();
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   function handleToggleWeekDay(weekDayIndexSelected: number) {

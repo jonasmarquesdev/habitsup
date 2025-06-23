@@ -18,7 +18,7 @@ export function SummaryTable() {
 
   useEffect(() => {
     reloadSummary();
-  }, [reloadSummary, summary]);
+  }, [reloadSummary]);
 
   return (
     <div className="w-full flex justify-center items-center">

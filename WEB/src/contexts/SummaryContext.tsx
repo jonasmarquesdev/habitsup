@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
 import { api } from "@/lib/axios";
 import { Summary } from "@/types/summary";
+import { useAuth } from "./UserContext";
 
 interface SummaryContextProps {
   summary: Summary;
@@ -15,12 +16,14 @@ const SummaryContext = createContext<SummaryContextProps>({
 });
 
 export function SummaryProvider({ children }: { children: React.ReactNode }) {
+  const { getUsuario } = useAuth();
   const [summary, setSummary] = useState<Summary>([]);
 
   const reloadSummary = useCallback(async () => {
-    const response = await api.get("/summary");
+    const currentUser = await getUsuario();
+    const response = await api.get(`/summary?userId=${currentUser.id}`);
     setSummary(response.data);
-  }, []);
+  }, [getUsuario]);
 
   return (
     <SummaryContext.Provider value={{ summary, reloadSummary }}>

@@ -19,12 +19,17 @@ model User {
   name     String
   email    String @unique
   password String
+
+  habits   Habit[]
 }
 
 model Habit {
   id         String   @id @default(uuid())
   title      String
   created_at DateTime @default(now())
+  
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
 
   dayHabits DayHabit[]
   weekDays  HabitWeekDays[]

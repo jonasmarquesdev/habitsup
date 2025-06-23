@@ -1,6 +1,7 @@
 "use client";
 
 import { useSummary } from "@/contexts/SummaryContext";
+import { useAuth } from "@/contexts/UserContext";
 import { api } from "@/lib/axios";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
@@ -20,9 +21,11 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
   const [title, setTitle] = useState("");
   const [weekDays, setWeekDays] = useState<number[]>([]);
   const { reloadSummary } = useSummary();
+  const { getUsuario } = useAuth();
 
   async function createNewHabit(event: React.FormEvent) {
     event.preventDefault();
+    const currentUser = await getUsuario();
 
     if (!title || weekDays.length === 0) {
       return;
@@ -32,6 +35,7 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
       await api.post("habits", {
         title,
         weekDays,
+        userId: currentUser.id,
       });
 
       setTitle("");

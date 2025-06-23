@@ -39,8 +39,9 @@ export class HabitController {
     const createHabitBody = z.object({
       title: z.string(),
       weekDays: z.array(z.number().min(0).max(6)),
+      userId: z.string().uuid(),
     });
-    const { title, weekDays } = createHabitBody.parse(request.body);
+    const { title, weekDays, userId } = createHabitBody.parse(request.body);
 
     const today = dayjs().startOf("day").toDate();
     
@@ -58,6 +59,7 @@ export class HabitController {
       data: {
         title,
         created_at: today,
+        userId,
         weekDays: {
           create: weekDays.map((weekDay) => ({ week_day: weekDay })),
         },
@@ -98,25 +100,32 @@ export class HabitController {
   }
 
   static async getSummary(request: FastifyRequest, reply: FastifyReply) {
+    const getSummaryQuery = z.object({
+      userId: z.string().uuid(),
+    });
+    const { userId } = getSummaryQuery.parse(request.query);
+
     const summary = await prisma.$queryRaw`
-      SELECT 
-        D.id,
-        D.date,
-        (
-          SELECT cast(count(*) as float)
-          FROM day_habits DH
-          WHERE DH.day_id = D.id
-        ) as completed,
-        (
-          SELECT cast(count(*) as float)
-          FROM habit_week_days HWD
-          JOIN habits H ON H.id = HWD.habit_id
-          WHERE 
-            HWD.week_day = CAST(EXTRACT(DOW FROM D.date) AS INT)
-            AND H.created_at::date <= D.date::date
-        ) as amount
-      FROM days D
-    `;
+    SELECT 
+      D.id,
+      D.date,
+      (
+        SELECT cast(count(*) as float)
+        FROM day_habits DH
+        JOIN habits H ON H.id = DH.habit_id
+        WHERE DH.day_id = D.id AND H."userId" = ${userId}
+      ) as completed,
+      (
+        SELECT cast(count(*) as float)
+        FROM habit_week_days HWD
+        JOIN habits H ON H.id = HWD.habit_id
+        WHERE 
+          HWD.week_day = CAST(EXTRACT(DOW FROM D.date) AS INT)
+          AND H.created_at::date <= D.date::date
+          AND H."userId" = ${userId}
+      ) as amount
+    FROM days D
+  `;
     return reply.send(summary);
   }
 }

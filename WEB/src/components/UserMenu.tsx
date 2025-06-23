@@ -3,7 +3,6 @@
 import { Button } from "./ui/button";
 import {
   HomeIcon,
-  LogInIcon,
   LogOutIcon,
   Crown,
   Settings,
@@ -18,34 +17,32 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
+import { useAuth } from "@/contexts/UserContext";
+import { useEffect, useState } from "react";
+import { User } from "@/interfaces/User";
 
 const UserMenu = () => {
-  //   const { data } = useSession();
+  const { getUsuario, logout } = useAuth();
+  const [user, setUser] = useState<User>();
 
-  //   const handleSigOutClick = () => signOut();
-  //   const handleSigInClcik = () => signIn();
-  function handleSigInClcik() {
-    alert("login");
-  }
-
-  function handleSigOutClick() {
-    alert("logout");
-  }
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await getUsuario();
+      setUser(currentUser);
+    };
+    fetchUser();
+  }, [getUsuario]);
 
   const data = {
-    user: {
-      name: "Jonas Marques",
-      image: "",
-      email: "jonas.mar32@gmail.com",
-    },
+    user: user,
   };
 
   const buttons = [
     {
       label: "Início",
-      href: "/#",
+      href: "/",
       icon: <HomeIcon size={16} />,
     },
     {
@@ -75,7 +72,7 @@ const UserMenu = () => {
           >
             <p>{data?.user?.name}</p>
             <Avatar>
-              <AvatarImage src={data?.user?.image as string | undefined} />
+              {/* <AvatarImage src={data?.user?.image as string | undefined} /> */}
               <AvatarFallback>
                 {data?.user?.name?.split(" ")[0]?.[0]}
                 {data?.user?.name?.split(" ")[1]?.[0] ?? ""}
@@ -89,39 +86,24 @@ const UserMenu = () => {
             <SheetTitle className="text-left">Menu</SheetTitle>
           </SheetHeader>
 
-          {data?.user ? (
-            <>
-              <div className="flex justify-between pt-6">
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage
-                      src={data?.user?.image as string | undefined}
-                    />
-                    <AvatarFallback>
-                      {data?.user?.name?.split(" ")[0]?.[0]}
-                      {data?.user?.name?.split(" ")[1]?.[0] ?? ""}
-                    </AvatarFallback>
-                  </Avatar>
+          <div className="flex justify-between pt-6">
+            <div className="flex items-center gap-3">
+              <Avatar>
+                {/* <AvatarImage src={data?.user?.image as string | undefined} /> */}
+                <AvatarFallback>
+                  {data?.user?.name?.split(" ")[0]?.[0]}
+                  {data?.user?.name?.split(" ")[1]?.[0] ?? ""}
+                </AvatarFallback>
+              </Avatar>
 
-                  <div>
-                    <h3 className="font-semibold">{data?.user?.name}</h3>
-                    <span className="block text-xs text-muted-foreground">
-                      {data?.user?.email}
-                    </span>
-                  </div>
-                </div>
+              <div>
+                <h3 className="font-semibold">{data?.user?.name}</h3>
+                <span className="block text-xs text-muted-foreground">
+                  {data?.user?.email}
+                </span>
               </div>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center justify-between pt-10">
-                <h2 className="font-semibold">Olá, Faça seu login</h2>
-                <Button onClick={handleSigInClcik} size="icon">
-                  <LogInIcon />
-                </Button>
-              </div>
-            </>
-          )}
+            </div>
+          </div>
 
           <div className="py-6">
             <Separator />
@@ -151,7 +133,7 @@ const UserMenu = () => {
             <Button
               variant="ghost"
               className="w-full justify-start space-x-3 rounded-full text-sm font-normal"
-              onClick={handleSigOutClick}
+              onClick={() => logout()}
             >
               <LogOutIcon size={16} />
               <span className="block">Sair da conta</span>

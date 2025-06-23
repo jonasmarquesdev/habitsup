@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { appRoutes } from "./routes";
+import fastifyJwt from "@fastify/jwt";
 
 const app = Fastify();
 
@@ -8,6 +9,11 @@ app.register(cors, {
   origin: "*", // Allow all origins
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allow PATCH and others
 });
+
+app.register(fastifyJwt, {
+  secret: "sys-activity-87923647",
+});
+
 app.register(appRoutes);
 
 app

@@ -1,14 +1,10 @@
 import { FastifyInstance } from "fastify";
-import { getHabitsRoute } from "./getHabits";
-import { getDayRoute } from "./getDay";
-import { postHabitRoute } from "./postHabit";
-import { toggleHabitRoute } from "./toggleHabit";
-import { getSummaryRoute } from "./getSummary";
+import { HabitController } from "../controllers/HabitController";
 
 export async function appRoutes(app: FastifyInstance) {
-  await getHabitsRoute(app);
-  await getDayRoute(app);
-  await postHabitRoute(app);
-  await toggleHabitRoute(app);
-  await getSummaryRoute(app);
+  app.get("/habits", HabitController.getHabits);
+  app.get("/day", HabitController.getDay);
+  app.post("/habits", HabitController.postHabit);
+  app.patch("/habits/:id/toggle", HabitController.toggleHabit);
+  app.get("/summary", HabitController.getSummary);
 }

@@ -2,7 +2,7 @@
 
 import { generateDatesFromYearBeginning } from "@/utils/generate-dates-from-year-beginning";
 
-import { HabitDay } from "./HabitDay";
+import { HabitDayBlock } from "./HabitDayBlock";
 import dayjs from "dayjs";
 import { useSummary } from "@/contexts/SummaryContext";
 import { useEffect } from "react";
@@ -42,10 +42,10 @@ export function SummaryTable() {
               });
 
               return (
-                <HabitDay
+                <HabitDayBlock
                   key={date.toString()}
                   date={date}
-                  amount={dayInSummary?.amount}
+                  amount={dayInSummary?.amount ?? 0}
                   defaultCompleted={dayInSummary?.completed}
                 />
               );

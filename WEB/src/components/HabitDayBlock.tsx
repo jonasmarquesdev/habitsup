@@ -7,14 +7,9 @@ import dayjs from "../lib/dayjs";
 import { HabitList } from "./HabitList";
 import { useState } from "react";
 import { WarningCircle } from "phosphor-react";
+import type { HabitDay } from "@/interfaces/HabitDay";
 
-interface HabitDayProps {
-  date: Date;
-  defaultCompleted?: number;
-  amount?: number;
-}
-
-export function HabitDay({ amount = 0, defaultCompleted = 0, date }: HabitDayProps) {
+export function HabitDayBlock({ amount, defaultCompleted = 0, date }:  HabitDay) {
   const [completed, setCompleted] = useState(defaultCompleted);
 
   const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());
@@ -48,12 +43,19 @@ export function HabitDay({ amount = 0, defaultCompleted = 0, date }: HabitDayPro
 
           <ProgressBar progress={completedPercentage} />
 
-          {isDateInPast && (
+            {isDateInPast && (
             <div className="flex items-center justify-center mt-6 gap-1">
               <WarningCircle size={20} className="text-red-800" />
               <span className="text-red-800">Não é possível modificar activity de dias anteriores</span>
             </div>
-          )}
+            )}
+
+            {!isDateInPast && amount === 0 && (
+            <div className="flex items-center justify-center mt-6 gap-1">
+              <WarningCircle size={20} className="text-yellow-500" />
+              <span className="text-yellow-500">Nenhuma activity para hoje. Você pode criar novas!</span>
+            </div>
+            )}
 
           <HabitList date={date} onCompletedChanged={handleCompletedChanged} />
 

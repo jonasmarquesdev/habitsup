@@ -38,19 +38,22 @@ export class UserController {
 
   static async getUser(request: FastifyRequest, reply: FastifyReply) {
     try {
-        await request.jwtVerify();
-        const userPayload = request.user as { id: string; iat?: number };
-        const userId = userPayload.id;
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { id: true, name: true, email: true }
-        });
-        if (!user) {
-            return reply.status(404).send({ message: "Usuário não encontrado." });
-        }
-        return reply.send({ ...user, iat: userPayload.iat });
-    } catch (err) {
-        return reply.status(401).send({ message: "Token inválido ou ausente." });
+      await request.jwtVerify();
+      const userPayload = request.user as { id: string; iat?: number };
+      const userId = userPayload.id;
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, name: true, email: true },
+      });
+      if (!user) {
+        return reply.status(404).send({ message: "Usuário não encontrado." });
+      }
+      return reply.send({ ...user, iat: userPayload.iat });
+    } catch (error) {
+      return reply.status(401).send({
+        message: "Token inválido ou ausente.",
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 

@@ -55,9 +55,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const getUsuario = async (): Promise<User> => {
+  const getUsuario = async (): Promise<User | undefined> => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
     try {
-      const token = localStorage.getItem("token");
       const response = await api.get("/user", {
         headers: {
           Authorization: `Bearer ${token}`,

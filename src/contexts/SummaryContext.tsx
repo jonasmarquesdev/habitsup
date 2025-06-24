@@ -21,10 +21,12 @@ export function SummaryProvider({ children }: { children: React.ReactNode }) {
 
   const reloadSummary = useCallback(async () => {
     const currentUser = await getUsuario();
+    if (!currentUser?.id) {
+      setSummary([]);
+      return;
+    }
     const response = await api.get(`/summary?userId=${currentUser.id}`);
     setSummary(response.data);
-
-    console.log("Summary reloaded:", response.data);
   }, [getUsuario]);
 
   return (

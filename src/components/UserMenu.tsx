@@ -24,10 +24,11 @@ import { useEffect, useState } from "react";
 import { User } from "@/interfaces/User";
 
 const UserMenu = () => {
-  const { getUsuario, logout } = useAuth();
+  const { getUsuario, logout, isAuthenticatedBoolean } = useAuth();
   const [user, setUser] = useState<User>();
 
   useEffect(() => {
+    if (!isAuthenticatedBoolean) return;
     const fetchUser = async () => {
       const currentUser = await getUsuario();
       setUser(currentUser);
@@ -81,7 +82,7 @@ const UserMenu = () => {
           </Button>
         </SheetTrigger>
 
-        <SheetContent>
+        <SheetContent aria-describedby={undefined}>
           <SheetHeader>
             <SheetTitle className="text-left">Menu</SheetTitle>
           </SheetHeader>

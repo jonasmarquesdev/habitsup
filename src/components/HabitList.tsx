@@ -47,27 +47,38 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   }, [date, getUsuario]);
 
   async function handleToggleHabit(habitId: string) {
-    api.patch(`/habits/${habitId}/toggle`);
+    const user = await getUsuario();
+    const userId = user?.id;
+    if (!userId || !habitsInfo) return;
 
-    const isHabitAlreadyCompleted =
-      habitsInfo!.completedHabits.includes(habitId);
-    let completedHabits: string[] = [];
+    // Salve o estado anterior
+    const prevHabitsInfo = { ...habitsInfo };
+
+    // Optimistic update
+    const isHabitAlreadyCompleted = habitsInfo.completedHabits.includes(habitId);
+    let completedHabits: string[];
 
     if (isHabitAlreadyCompleted) {
-      completedHabits = habitsInfo!.completedHabits.filter(
-        (id) => id !== habitId
-      );
+      completedHabits = habitsInfo.completedHabits.filter((id) => id !== habitId);
     } else {
-      completedHabits = [...habitsInfo!.completedHabits, habitId];
+      completedHabits = [...habitsInfo.completedHabits, habitId];
     }
 
     setHabitsInfo({
-      possibleHabits: habitsInfo!.possibleHabits,
+      possibleHabits: habitsInfo.possibleHabits,
       completedHabits,
     });
 
     onCompletedChanged(completedHabits.length);
-    reloadSummary();
+
+    try {
+      await api.patch(`/habits/${habitId}/toggle/${userId}`);
+      reloadSummary();
+    } catch (error) {
+      // Rollback correto
+      setHabitsInfo(prevHabitsInfo);
+      onCompletedChanged(prevHabitsInfo.completedHabits.length);
+    }
   }
 
   const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());

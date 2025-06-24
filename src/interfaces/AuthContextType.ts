@@ -7,5 +7,5 @@ export interface AuthContextType {
   logout: () => void;
   isAuthenticated: () => void;
   isAuthenticatedBoolean: boolean;
-  getUsuario: () => Promise<User>;
+  getUsuario: () => Promise<User | undefined>;
 }

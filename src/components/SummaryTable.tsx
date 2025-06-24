@@ -19,7 +19,7 @@ export function SummaryTable() {
 
   useEffect(() => {
     reloadSummary();
-  }, [reloadSummary]);
+  }, []);
 
   return (
     <div className="w-full flex justify-center items-center">

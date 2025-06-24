@@ -3,15 +3,18 @@
 import { Header } from "@/components/Header";
 import { Nav } from "@/components/Nav";
 import { SummaryTable } from "@/components/SummaryTable";
+import { useSummary } from "@/contexts/SummaryContext";
 import { useAuth } from "@/contexts/UserContext";
 import { useEffect } from "react";
 
 export default function Home() {
   const { isAuthenticated, isAuthenticatedBoolean } = useAuth();
+  const { reloadSummary } = useSummary();
 
   useEffect(() => {
     isAuthenticated();
-  }, [isAuthenticated]);
+    reloadSummary();
+  }, [isAuthenticated, reloadSummary, isAuthenticatedBoolean]);
 
   return (
     <div className="h-screen w-screen flex justify-center">

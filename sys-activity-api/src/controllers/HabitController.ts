@@ -125,6 +125,13 @@ export class HabitController {
           AND H."userId" = ${userId}
       ) as amount
     FROM days D
+    WHERE EXISTS (
+      SELECT 1
+      FROM day_habits DH
+      JOIN habits H ON H.id = DH.habit_id
+      WHERE DH.day_id = D.id AND H."userId" = ${userId}
+    )
+    ORDER BY D.date
   `;
     return reply.send(summary);
   }

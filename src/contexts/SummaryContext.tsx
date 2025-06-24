@@ -23,6 +23,8 @@ export function SummaryProvider({ children }: { children: React.ReactNode }) {
     const currentUser = await getUsuario();
     const response = await api.get(`/summary?userId=${currentUser.id}`);
     setSummary(response.data);
+
+    console.log("Summary reloaded:", response.data);
   }, [getUsuario]);
 
   return (

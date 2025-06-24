@@ -17,19 +17,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     setToken(storedToken);
-    if (!token) {
-      router.push("/login");
-    } else {
-      router.push("/");
-    }
+    // if (!token) {
+    //   router.push("/login");
+    // } else {
+    //   router.push("/");
+    // }
   }, [token, router]);
+
+  const register = async (name: string, email: string, password: string) => {
+    await api.post("/user", { name, email, password });
+    const responseToken = await api.post("/login", { email, password });
+    const { token } = responseToken.data;
+    localStorage.setItem("token", token);
+    setToken(token);
+    if (token) {
+      router.push("/login");
+    }
+  };
+
+  const isAuthenticated = () => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      router.push("/login");
+    }
+  }
 
   const login = async (email: string, password: string) => {
     const response = await api.post("/login", { email, password });
     const { token } = response.data;
     localStorage.setItem("token", token);
     setToken(token);
-    router.push("/");
+    if (token) {
+      router.push("/");
+    }
   };
 
   const getUsuario = async (): Promise<User> => {
@@ -56,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ token, login, logout, getUsuario, isAuthenticated: !!token }}
+      value={{ token, register, login, logout, getUsuario, isAuthenticated }}
     >
       {children}
     </AuthContext.Provider>

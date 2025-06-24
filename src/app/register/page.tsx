@@ -6,21 +6,22 @@ import { Logo } from "@/components/Logo";
 import { ApiError } from "@/types/api-error";
 import { useAuth } from "@/contexts/UserContext";
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const { login } = useAuth();
+  const { register } = useAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      login(email, password);
-      router.push("/");
+      await register(name, email, password);
+      router.push("/login");
     } catch (err: unknown) {
       const apiErr = err as ApiError;
       const message = apiErr?.response?.data?.message;
@@ -37,12 +38,24 @@ export default function LoginPage() {
       <div className="w-full max-w-md px-8 py-12 rounded-3xl shadow-2xl border border-zinc-800 bg-zinc-900/60 flex flex-col gap-8 items-center justify-center backdrop-blur-md">
         <Logo />
         <h2 className="text-2xl font-bold text-center">
-          Bem-vindo {localStorage.getItem("sys-activity-user") ? <span>de volta!</span> : null}
+          Crie sua conta
         </h2>
         <form
-          onSubmit={handleLogin}
+          onSubmit={handleRegister}
           className="space-y-6 flex flex-col justify-center w-full"
         >
+          <div>
+            <label className="block mb-1 font-semibold">Nome</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full p-3 rounded-lg bg-zinc-800 text-foreground border border-border placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-600 transition-all"
+              placeholder="Digite seu nome"
+              autoComplete="name"
+            />
+          </div>
           <div>
             <label className="block mb-1 font-semibold">Email</label>
             <input
@@ -62,9 +75,10 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={8}
               className="w-full p-3 rounded-lg bg-zinc-800 text-foreground border border-border placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-600 transition-all pr-12"
               placeholder="Digite sua senha"
-              autoComplete="current-password"
+              autoComplete="new-password"
             />
             <button
               type="button"
@@ -74,12 +88,7 @@ export default function LoginPage() {
               aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
             >
               {showPassword ? (
-                <svg
-                  width="22"
-                  height="22"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
                   <path
                     stroke="currentColor"
                     strokeWidth="2"
@@ -87,12 +96,7 @@ export default function LoginPage() {
                   />
                 </svg>
               ) : (
-                <svg
-                  width="22"
-                  height="22"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
                   <path
                     stroke="currentColor"
                     strokeWidth="2"
@@ -114,17 +118,17 @@ export default function LoginPage() {
           )}
           <div className="w-full flex justify-center mb-4">
             <a
-              href="/register"
+              href="/login"
               className="text-violet-400 hover:underline text-sm font-medium transition-colors"
             >
-              Não tem uma conta? Cadastre-se
+              Já tem uma conta? Entrar
             </a>
           </div>
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-violet-700 to-violet-500 text-white py-3 rounded-lg font-semibold shadow-md hover:from-violet-600 hover:to-violet-400 transition-all flex items-center justify-center"
           >
-            Entrar
+            Cadastrar
           </button>
         </form>
       </div>

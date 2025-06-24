@@ -74,8 +74,8 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     try {
       await api.patch(`/habits/${habitId}/toggle/${userId}`);
       reloadSummary();
-    } catch (error) {
-      // Rollback correto
+    } catch {
+      // Rollback
       setHabitsInfo(prevHabitsInfo);
       onCompletedChanged(prevHabitsInfo.completedHabits.length);
     }

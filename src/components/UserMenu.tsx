@@ -22,16 +22,20 @@ import { Separator } from "./ui/separator";
 import { useAuth } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
 import { User } from "@/interfaces/User";
+import { Skeleton } from "./ui/skeleton";
 
 const UserMenu = () => {
   const { getUsuario, logout, isAuthenticatedBoolean } = useAuth();
   const [user, setUser] = useState<User>();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticatedBoolean) return;
     const fetchUser = async () => {
+      setLoading(true);
       const currentUser = await getUsuario();
       setUser(currentUser);
+      setLoading(false);
     };
     fetchUser();
   }, [getUsuario, isAuthenticatedBoolean]);
@@ -63,13 +67,28 @@ const UserMenu = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-between">
+        <Button
+          variant="outline"
+          className="bg-transparent flex items-center gap-4 border-none"
+          disabled
+        >
+          <Skeleton className="h-5 w-20 rounded bg-zinc-600" />
+          <Skeleton className="h-10 w-10 rounded-full bg-zinc-600" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full items-center justify-between">
       <Sheet>
         <SheetTrigger asChild>
           <Button
             variant="outline"
-            className="bg-transparentflex items-center gap-4 border-none"
+            className="bg-transparent flex items-center gap-4 border-none"
           >
             <p>{data?.user?.name}</p>
             <Avatar>

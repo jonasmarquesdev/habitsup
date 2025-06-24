@@ -49,8 +49,8 @@ export function HabitDayBlock({
       >
         {amount > 0 && !isDateInPast && completed === 0 && (
           <span className="flex h-4 w-4 items-center justify-center transition-all">
-            <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-violet-500 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-violet-500"></span>
+            <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-violet-500 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
           </span>
         )}
       </Popover.Trigger>

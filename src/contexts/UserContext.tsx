@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { api } from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { AuthContextType } from "@/interfaces/AuthContextType";
@@ -12,17 +12,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticatedBoolean, setIsAuthenticatedBoolean] = useState(false);
+
   const router = useRouter();
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
-    // if (!token) {
-    //   router.push("/login");
-    // } else {
-    //   router.push("/");
-    // }
-  }, [token, router]);
+  // useEffect(() => {
+  //   const storedToken = localStorage.getItem("token");
+  //   setToken(storedToken);
+  // }, [token, router]);
 
   const register = async (name: string, email: string, password: string) => {
     await api.post("/user", { name, email, password });
@@ -39,8 +36,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedToken = localStorage.getItem("token");
     if (!storedToken) {
       router.push("/login");
+      setIsAuthenticatedBoolean(false);
+    } else {
+      setIsAuthenticatedBoolean(true);
+      getUsuario().catch((error) => {
+        if (error.response && error.response.status === 404) {
+          router.push("/login");
+          setIsAuthenticatedBoolean(false);
+        } else {
+          setIsAuthenticatedBoolean(true);
+        }
+      });
     }
-  }
+  };
 
   const login = async (email: string, password: string) => {
     const response = await api.post("/login", { email, password });
@@ -76,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ token, register, login, logout, getUsuario, isAuthenticated }}
+      value={{ token, register, login, logout, getUsuario, isAuthenticated, isAuthenticatedBoolean }}
     >
       {children}
     </AuthContext.Provider>

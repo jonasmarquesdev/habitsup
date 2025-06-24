@@ -21,6 +21,9 @@ model User {
   password String
 
   habits   Habit[]
+  days     Day[]
+
+  @@map("users")
 }
 
 model Habit {
@@ -38,12 +41,15 @@ model Habit {
 }
 
 model Day {
-  id   String   @id @default(uuid())
-  date DateTime
+  id       String   @id @default(uuid())
+  date     DateTime
+  userId   String
+
+  user     User     @relation(fields: [userId], references: [id])
 
   dayHabits DayHabit[]
 
-  @@unique([date])
+  @@unique([date, userId])
   @@map("days")
 }
 

@@ -6,6 +6,7 @@ import dayjs from "../lib/dayjs";
 import clsx from "clsx";
 import { useSummary } from "@/contexts/SummaryContext";
 import { Skeleton } from "./ui/skeleton";
+import { useAuth } from "@/contexts/UserContext";
 
 interface HabitListProps {
   date: Date;
@@ -24,20 +25,30 @@ interface HabitInfo {
 export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   const [habitsInfo, setHabitsInfo] = useState<HabitInfo>();
   const { reloadSummary } = useSummary();
+  const { getUsuario } = useAuth();
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    getUsuario().then((user) => {
+      setUserId(user.id);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     api
       .get("day", {
         params: {
           date: date.toISOString(),
+          userId: userId,
         },
       })
       .then((response) => {
         setHabitsInfo(response.data);
       });
-  }, [date]);
+  }, [date, userId]);
 
-  function handleToggleHabit(habitId: string) {
+  async function handleToggleHabit(habitId: string) {
     api.patch(`/habits/${habitId}/toggle`);
 
     const isHabitAlreadyCompleted =

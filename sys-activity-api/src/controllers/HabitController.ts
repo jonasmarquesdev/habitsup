@@ -12,8 +12,9 @@ export class HabitController {
   static async getDay(request: FastifyRequest, reply: FastifyReply) {
     const getDayParams = z.object({
       date: z.coerce.date(),
+      userId: z.string().uuid(),
     });
-    const { date } = getDayParams.parse(request.query);
+    const { date, userId } = getDayParams.parse(request.query);
 
     const parsedDate = dayjs(date).startOf("day");
     const weekDay = parsedDate.get("day");
@@ -22,11 +23,12 @@ export class HabitController {
       where: {
         created_at: { lte: date },
         weekDays: { some: { week_day: weekDay } },
+        userId,
       },
     });
 
     const day = await prisma.day.findUnique({
-      where: { date: parsedDate.toDate() },
+      where: { date_userId: { date: parsedDate.toDate(), userId } },
       include: { dayHabits: true },
     });
 
@@ -44,14 +46,14 @@ export class HabitController {
     const { title, weekDays, userId } = createHabitBody.parse(request.body);
 
     const today = dayjs().startOf("day").toDate();
-    
+
     let day = await prisma.day.findUnique({
-      where: { date: today }
+      where: { date_userId: { date: today, userId } },
     });
 
     if (!day) {
       day = await prisma.day.create({
-        data: { date: today }
+        data: { date: today, userId },
       });
     }
 
@@ -72,14 +74,20 @@ export class HabitController {
   static async toggleHabit(request: FastifyRequest, reply: FastifyReply) {
     const toggleHabitParams = z.object({
       id: z.string().uuid(),
+      userId: z.string().uuid(),
     });
-    const { id } = toggleHabitParams.parse(request.params);
+    const { id, userId } = toggleHabitParams.parse(request.params);
 
     const today = dayjs().startOf("day").toDate();
 
-    let day = await prisma.day.findUnique({ where: { date: today } });
+    let day = await prisma.day.findUnique({
+      where: { date_userId: { date: today, userId } },
+    });
+
     if (!day) {
-      day = await prisma.day.create({ data: { date: today } });
+      day = await prisma.day.create({
+        data: { date: today, userId },
+      });
     }
 
     const dayHabit = await prisma.dayHabit.findUnique({
@@ -125,12 +133,7 @@ export class HabitController {
           AND H."userId" = ${userId}
       ) as amount
     FROM days D
-    WHERE EXISTS (
-      SELECT 1
-      FROM day_habits DH
-      JOIN habits H ON H.id = DH.habit_id
-      WHERE DH.day_id = D.id AND H."userId" = ${userId}
-    )
+    WHERE D."userId" = ${userId}
     ORDER BY D.date
   `;
     return reply.send(summary);

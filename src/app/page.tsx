@@ -7,20 +7,22 @@ import { useAuth } from "@/contexts/UserContext";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAuthenticatedBoolean } = useAuth();
 
   useEffect(() => {
     isAuthenticated();
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <div className="h-screen w-screen flex justify-center">
       <div className="w-full max-w-7xl px-6 flex flex-col gap-16">
-
-        <Nav />
-        <Header />
-        <SummaryTable />
-
+        {isAuthenticatedBoolean && (
+          <>
+            <Nav />
+            <Header />
+            <SummaryTable />
+          </>
+        )}
       </div>
     </div>
   );

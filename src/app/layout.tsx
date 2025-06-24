@@ -4,6 +4,7 @@ import "./globals.css";
 import "../lib/dayjs";
 import { SummaryProvider } from "@/contexts/SummaryContext";
 import { AuthProvider } from "@/contexts/UserContext";
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,10 @@ export default function RootLayout({
         <AuthProvider>
           <SummaryProvider>{children}</SummaryProvider>
         </AuthProvider>
+        <Toaster
+          position="bottom-center"
+          reverseOrder={false}
+        />
       </body>
     </html>
   );

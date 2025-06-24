@@ -26,27 +26,25 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   const [habitsInfo, setHabitsInfo] = useState<HabitInfo>();
   const { reloadSummary } = useSummary();
   const { getUsuario } = useAuth();
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    getUsuario().then((user) => {
-      setUserId(user.id);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!userId) return;
-    api
-      .get("day", {
-        params: {
-          date: date.toISOString(),
-          userId: userId,
-        },
-      })
-      .then((response) => {
-        setHabitsInfo(response.data);
-      });
-  }, [date, userId]);
+    async function fetchHabits() {
+      const user = await getUsuario();
+      const userId = user?.id;
+      if (!userId) return;
+      api
+        .get("day", {
+          params: {
+            date: date.toISOString(),
+            userId: userId,
+          },
+        })
+        .then((response) => {
+          setHabitsInfo(response.data);
+        });
+    }
+    fetchHabits();
+  }, [date, getUsuario]);
 
   async function handleToggleHabit(habitId: string) {
     api.patch(`/habits/${habitId}/toggle`);

@@ -6,15 +6,20 @@ import clsx from "clsx";
 import dayjs from "../lib/dayjs";
 import { HabitList } from "./HabitList";
 import { useState } from "react";
-import { WarningCircle } from "phosphor-react";
+import { WarningCircle, CheckCircle } from "phosphor-react";
 import type { HabitDay } from "@/interfaces/HabitDay";
 
-export function HabitDayBlock({ amount, defaultCompleted = 0, date }:  HabitDay) {
+export function HabitDayBlock({
+  amount,
+  defaultCompleted = 0,
+  date,
+}: HabitDay) {
   const [completed, setCompleted] = useState(defaultCompleted);
 
-  const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());
+  const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());
 
-  const completedPercentage = amount > 0 ? Math.round((completed / amount) * 100) : 0;
+  const completedPercentage =
+    amount > 0 ? Math.round((completed / amount) * 100) : 0;
   const dayAndMonth = dayjs(date).format("DD/MM");
   const dayOfWeek = dayjs(date).locale("pt-br").format("dddd").toLowerCase();
 
@@ -24,38 +29,67 @@ export function HabitDayBlock({ amount, defaultCompleted = 0, date }:  HabitDay)
 
   return (
     <Popover.Root>
-      <Popover.Trigger 
-        className={clsx('w-10 h-10 border-2 rounded-lg transition-colors', {
-          'bg-zinc-900 border-zinc-800': completedPercentage === 0,
-          'bg-violet-900 border-violet-700': completedPercentage > 0 && completedPercentage < 20,
-          'bg-violet-800 border-violet-600': completedPercentage >= 20 && completedPercentage < 40,
-          'bg-violet-700 border-violet-500': completedPercentage >= 40 && completedPercentage < 60,
-          'bg-violet-600 border-violet-500': completedPercentage >= 60 && completedPercentage < 80,
-          'bg-violet-500 border-violet-400': completedPercentage >= 80,
-          'cursor-pointer': true,
-        })}
-      />
+      <Popover.Trigger
+        className={clsx(
+          "w-10 h-10 border-2 rounded-lg transition-colors relative flex items-center justify-center",
+          {
+            "bg-zinc-900 border-zinc-800": completedPercentage === 0,
+            "bg-violet-900 border-violet-700":
+              completedPercentage > 0 && completedPercentage < 20,
+            "bg-violet-800 border-violet-600":
+              completedPercentage >= 20 && completedPercentage < 40,
+            "bg-violet-700 border-violet-500":
+              completedPercentage >= 40 && completedPercentage < 60,
+            "bg-violet-600 border-violet-500":
+              completedPercentage >= 60 && completedPercentage < 80,
+            "bg-violet-500 border-violet-400": completedPercentage >= 80,
+            "cursor-pointer": true,
+          }
+        )}
+      >
+        {amount > 0 && !isDateInPast && completed === 0 && (
+          <span className="flex h-4 w-4 items-center justify-center transition-all">
+            <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-violet-500 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-violet-500"></span>
+          </span>
+        )}
+      </Popover.Trigger>
 
       <Popover.Portal>
         <Popover.Content className="min-w-[320px] p-6 bg-zinc-900 rounded-2xl flex flex-col transition-all">
           <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
-          <span className="mt-1 font-extrabold leading-tight text-3xl">{dayAndMonth}</span>
+          <span className="mt-1 font-extrabold leading-tight text-3xl">
+            {dayAndMonth}
+          </span>
 
           <ProgressBar progress={completedPercentage} />
 
-            {isDateInPast && (
+          {isDateInPast && (
             <div className="flex items-center justify-center mt-6 gap-1">
               <WarningCircle size={20} className="text-red-800" />
-              <span className="text-red-800">Não é possível modificar activity de dias anteriores</span>
+              <span className="text-red-800">
+                Não é possível modificar activity de dias anteriores
+              </span>
             </div>
-            )}
+          )}
 
-            {!isDateInPast && amount === 0 && (
+          {completed === amount && amount > 0 && (
+            <div className="flex items-center justify-center mt-6 gap-1">
+              <CheckCircle size={20} className="text-green-500" />
+              <span className="text-green-500">
+                Você concluiu todas as activity de hoje!
+              </span>
+            </div>
+          )}
+
+          {!isDateInPast && amount === 0 && (
             <div className="flex items-center justify-center mt-6 gap-1">
               <WarningCircle size={20} className="text-yellow-500" />
-              <span className="text-yellow-500">Nenhuma activity para hoje. Você pode criar novas!</span>
+              <span className="text-yellow-500">
+                Nenhuma activity para hoje. Você pode criar novas!
+              </span>
             </div>
-            )}
+          )}
 
           <HabitList date={date} onCompletedChanged={handleCompletedChanged} />
 

@@ -34,7 +34,7 @@ const UserMenu = () => {
       setUser(currentUser);
     };
     fetchUser();
-  }, [getUsuario]);
+  }, [getUsuario, isAuthenticatedBoolean]);
 
   const data = {
     user: user,

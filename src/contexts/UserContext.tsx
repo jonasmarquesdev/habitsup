@@ -47,6 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const logout = () => {
+    const sysActivityUser = crypto.randomUUID();
+    localStorage.setItem("sys-activity-user", sysActivityUser);
     localStorage.removeItem("token");
     setToken(null);
     router.push("/login");

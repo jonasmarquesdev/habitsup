@@ -6,6 +6,7 @@ import { HabitDayBlock } from "./HabitDayBlock";
 import dayjs from "dayjs";
 import { useSummary } from "@/contexts/SummaryContext";
 import { useEffect } from "react";
+import { CalendarBlank } from "phosphor-react";
 
 const weekDays = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -33,7 +34,18 @@ export function SummaryTable() {
         ))}
       </div>
 
-      <div className="grid grid-rows-7 grid-flow-col gap-3">
+      <div className="grid grid-rows-7 grid-flow-col gap-3 relative z-0">
+        {summary.length === 0 && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <div className="flex items-center gap-2 bg-zinc-800 border text-zinc-400 rounded-lg p-3 shadow-lg">
+              <CalendarBlank size={24} className="text-zinc-400" />
+              <span className="font-medium">
+                Nenhuma activity para hoje. Você pode criar novas!
+              </span>
+            </div>
+          </div>
+        )}
+
         {summary.length > 0 ? (
           <>
             {summaryDates.map((date) => {

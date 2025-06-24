@@ -6,6 +6,8 @@ import { api } from "@/lib/axios";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
 import { useState } from "react";
+import { showToastMessage, showToastPromise } from "./ToastMessage";
+import { useRouter } from "next/navigation";
 
 const availableWeekDays = [
   "Domingo",
@@ -22,6 +24,7 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
   const [weekDays, setWeekDays] = useState<number[]>([]);
   const { reloadSummary } = useSummary();
   const { getUsuario } = useAuth();
+  const router = useRouter();
 
   async function createNewHabit(event: React.FormEvent) {
     event.preventDefault();
@@ -31,13 +34,29 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
       return;
     }
 
-    try {
-      await api.post("habits", {
-        title,
-        weekDays,
-        userId: currentUser.id,
+    if (!currentUser || !currentUser.id) {
+      showToastMessage({
+        message: "Você precisa estar logado para acessar esta página.",
+        type: "error",
       });
+      router.push("/login");
+      return;
+    }
 
+    const habitPromise = api.post("habits", {
+      title,
+      weekDays,
+      userId: currentUser.id,
+    });
+
+    showToastPromise(habitPromise, {
+      loading: "Salvando activity...",
+      success: "Activity criada com sucesso!",
+      error: "Erro ao criar activity.",
+    });
+
+    try {
+      await habitPromise;
       setTitle("");
       setWeekDays([]);
       await reloadSummary();

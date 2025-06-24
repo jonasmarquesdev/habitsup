@@ -29,3 +29,24 @@ export function showToastMessage({ message, type }: ToastOptions) {
       break;
   }
 }
+
+export function showToastPromise<T>(
+  promise: Promise<T>,
+  messages: { loading: string; success: string; error: string }
+) {
+  const style = {
+    borderRadius: "10px",
+    background: colors.zinc[900],
+    color: "#fff",
+  };
+
+  return toast.promise(
+    promise,
+    {
+      loading: messages.loading,
+      success: messages.success,
+      error: messages.error,
+    },
+    { style }
+  );
+}

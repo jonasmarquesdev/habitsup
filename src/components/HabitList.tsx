@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { useSummary } from "@/contexts/SummaryContext";
 import { Skeleton } from "./ui/skeleton";
 import { useAuth } from "@/contexts/UserContext";
+import { showToastMessage } from "./ToastMessage";
 
 interface HabitListProps {
   date: Date;
@@ -55,11 +56,14 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     const prevHabitsInfo = { ...habitsInfo };
 
     // Optimistic update
-    const isHabitAlreadyCompleted = habitsInfo.completedHabits.includes(habitId);
+    const isHabitAlreadyCompleted =
+      habitsInfo.completedHabits.includes(habitId);
     let completedHabits: string[];
 
     if (isHabitAlreadyCompleted) {
-      completedHabits = habitsInfo.completedHabits.filter((id) => id !== habitId);
+      completedHabits = habitsInfo.completedHabits.filter(
+        (id) => id !== habitId
+      );
     } else {
       completedHabits = [...habitsInfo.completedHabits, habitId];
     }
@@ -73,9 +77,30 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
 
     try {
       await api.patch(`/habits/${habitId}/toggle/${userId}`);
+
       reloadSummary();
+
+      if (
+        !isHabitAlreadyCompleted &&
+        completedHabits.length === habitsInfo.possibleHabits.length &&
+        completedHabits.length > 0
+      ) {
+        showToastMessage({
+          message: "Parabéns! Você completou todas as activity do dia!",
+          type: "success",
+        });
+      } else {
+        showToastMessage({
+          message: "Activity atualizada com sucesso!",
+          type: "success",
+        });
+      }
     } catch {
       // Rollback
+      showToastMessage({
+        message: "Erro ao atualizar a activity. Tente novamente.",
+        type: "error",
+      });
       setHabitsInfo(prevHabitsInfo);
       onCompletedChanged(prevHabitsInfo.completedHabits.length);
     }

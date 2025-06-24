@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { ApiError } from "@/types/api-error";
@@ -11,8 +11,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isReturningUser, setIsReturningUser] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsReturningUser(!!localStorage.getItem("sys-activity-user"));
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +44,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md px-8 py-12 rounded-3xl shadow-2xl border border-zinc-800 bg-zinc-900/60 flex flex-col gap-8 items-center justify-center backdrop-blur-md">
         <Logo />
         <h2 className="text-2xl font-bold text-center">
-          Bem-vindo {localStorage.getItem("sys-activity-user") ? <span>de volta!</span> : null}
+          Bem-vindo {isReturningUser ? <span>de volta!</span> : null}
         </h2>
         <form
           onSubmit={handleLogin}

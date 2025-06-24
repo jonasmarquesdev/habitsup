@@ -35,7 +35,7 @@ export default function RootLayout({
           <SummaryProvider>{children}</SummaryProvider>
         </AuthProvider>
         <Toaster
-          position="bottom-center"
+          position="top-center"
           reverseOrder={false}
         />
       </body>

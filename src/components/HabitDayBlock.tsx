@@ -52,7 +52,7 @@ export function HabitDayBlock({
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content className="min-w-[320px] p-6 bg-zinc-900 rounded-2xl flex flex-col transition-all">
+        <Popover.Content className="min-w-[340px] p-6 bg-zinc-900 rounded-2xl flex flex-col transition-all">
           <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
           <span className="mt-1 font-extrabold leading-tight text-3xl">
             {dayAndMonth}
@@ -73,7 +73,7 @@ export function HabitDayBlock({
             <div className="flex items-center justify-center mt-6 gap-1">
               <CheckCircle size={20} className="text-green-500" />
               <span className="text-green-500">
-                Você concluiu todas as activity de hoje!
+                Você concluiu todas activitys de hoje!
               </span>
             </div>
           )}

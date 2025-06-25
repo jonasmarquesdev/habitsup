@@ -69,7 +69,7 @@ export function HabitDayBlock({
             </div>
           )}
 
-          {completed === amount && amount > 0 && (
+          {!isDateInPast && completed === amount && amount > 0 && (
             <div className="flex items-center justify-center mt-6 gap-1">
               <CheckCircle size={20} className="text-green-500" />
               <span className="text-green-500">

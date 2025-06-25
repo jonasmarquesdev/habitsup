@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/axios";
 import { Habit } from "@/interfaces/Habit";
+import { CalendarDays, ListTodo } from "lucide-react";
 
 export function ActivityModal({
   open,
@@ -37,7 +38,7 @@ export function ActivityModal({
           <Dialog.Title className="text-xl font-bold mb-4">
             Seus hábitos
           </Dialog.Title>
-          <ScrollArea className="h-80 w-full pr-2">
+          <ScrollArea className="h-80 w-full pr-6 pl-6">
             {loading ? (
               <div className="text-center text-zinc-400">Carregando...</div>
             ) : habits.length === 0 ? (
@@ -47,18 +48,35 @@ export function ActivityModal({
             ) : (
               <ul className="space-y-4">
                 {habits.map((habit) => (
-                  <li key={habit.id} className="border-b border-zinc-800 pb-2">
-                    <div className="font-semibold">{habit.title}</div>
-                    <div className="text-xs text-zinc-400">
-                      Dias cadastrados:{" "}
-                      {habit.weekDays
-                        ?.map(
-                          (d: { week_day: number }) =>
-                            ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][
-                              d.week_day
-                            ]
-                        )
-                        .join(", ")}
+                  <li
+                    key={habit.id}
+                    className="flex items-center justify-between bg-zinc-800 rounded-lg px-4 py-3 shadow-sm hover:bg-zinc-700 transition"
+                  >
+                    <div className="flex flex-col justify-center gap-2">
+                      <div className="flex items-center gap-2 font-semibold text-violet-400">
+                        <ListTodo className="w-5 h-5" />
+                        {habit.title}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-zinc-400 mt-1">
+                        <CalendarDays className="w-4 h-4" />
+                        <span>
+                          Dias cadastrados:{" "}
+                          {habit.weekDays
+                            ?.map(
+                              (d: { week_day: number }) =>
+                                [
+                                  "Dom",
+                                  "Seg",
+                                  "Ter",
+                                  "Qua",
+                                  "Qui",
+                                  "Sex",
+                                  "Sáb",
+                                ][d.week_day]
+                            )
+                            .join(", ")}
+                        </span>
+                      </div>
                     </div>
                   </li>
                 ))}

@@ -11,4 +11,5 @@ export async function appRoutes(app: FastifyInstance) {
   app.post("/habits", HabitController.postHabit);
   app.patch("/habits/:id/toggle/:userId", HabitController.toggleHabit);
   app.get("/summary", HabitController.getSummary);
+  app.get("/users/:userId/habits", HabitController.getHabitsByUserId);
 }

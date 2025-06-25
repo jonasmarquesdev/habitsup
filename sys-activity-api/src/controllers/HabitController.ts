@@ -9,6 +9,20 @@ export class HabitController {
     return reply.send(habits);
   }
 
+  static async getHabitsByUserId(request: FastifyRequest, reply: FastifyReply) {
+    const getHabitsParams = z.object({
+      userId: z.string().uuid(),
+    });
+    const { userId } = getHabitsParams.parse(request.params);
+
+    const habits = await prisma.habit.findMany({
+      where: { userId },
+      include: { weekDays: true },
+    });
+
+    return reply.send(habits);
+  }
+
   static async getDay(request: FastifyRequest, reply: FastifyReply) {
     const getDayParams = z.object({
       date: z.coerce.date(),

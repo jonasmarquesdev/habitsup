@@ -23,11 +23,13 @@ import { useAuth } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
 import { User } from "@/interfaces/User";
 import { Skeleton } from "./ui/skeleton";
+import { ActivityModal } from "./ActivityModal";
 
 const UserMenu = () => {
   const { getUsuario, logout, isAuthenticatedBoolean } = useAuth();
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
+  const [activityModalOpen, setActivityModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticatedBoolean) return;
@@ -49,11 +51,13 @@ const UserMenu = () => {
       label: "Início",
       href: "/",
       icon: <HomeIcon size={16} />,
+      onClick: undefined,
     },
     {
       label: "Activitys",
-      href: "/#",
+      href: "#",
       icon: <CalendarArrowUp size={16} />,
+      onClick: () => setActivityModalOpen(true),
     },
     {
       label: "Assinatura",
@@ -84,6 +88,7 @@ const UserMenu = () => {
 
   return (
     <div className="flex h-full items-center justify-between">
+      <ActivityModal open={activityModalOpen} onOpenChange={setActivityModalOpen} />
       <Sheet>
         <SheetTrigger asChild>
           <Button
@@ -136,11 +141,19 @@ const UserMenu = () => {
                 variant="ghost"
                 className="w-full justify-start space-x-3 rounded-full text-sm font-normal"
                 asChild
+                onClick={button.onClick}
               >
-                <Link href={button.href}>
-                  {button.icon}
-                  <span className="block">{button.label}</span>
-                </Link>
+                {button.onClick ? (
+                  <Link href="#">
+                    {button.icon}
+                    <span className="block">{button.label}</span>
+                  </Link>
+                ) : (
+                  <Link href={button.href}>
+                    {button.icon}
+                    <span className="block">{button.label}</span>
+                  </Link>
+                )}
               </Button>
             ))}
           </div>

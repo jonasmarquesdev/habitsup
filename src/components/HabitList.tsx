@@ -76,9 +76,14 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     onCompletedChanged(completedHabits.length);
 
     try {
-      await api.patch(`/habits/${habitId}/toggle/${userId}`);
-
-      reloadSummary();
+      const response = await api.patch(`/habits/${habitId}/toggle/${userId}`);
+      
+      // Verificar se a resposta foi bem-sucedida
+      if (response.status === 200) {
+        // Aguardar um pouco e então recarregar
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await reloadSummary();
+      }
 
       if (
         !isHabitAlreadyCompleted &&
@@ -95,10 +100,10 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
           type: "success",
         });
       }
-    } catch {
+    } catch (error) {
       // Rollback
       showToastMessage({
-        message: "Erro ao atualizar a activity. Tente novamente.",
+        message: `Erro ao atualizar activity: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
         type: "error",
       });
       setHabitsInfo(prevHabitsInfo);

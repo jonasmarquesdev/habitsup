@@ -5,8 +5,9 @@ import { generateDatesFromYearBeginning } from "@/utils/generate-dates-from-year
 import { HabitDayBlock } from "./HabitDayBlock";
 import dayjs from "dayjs";
 import { useSummary } from "@/contexts/SummaryContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CalendarBlank } from "phosphor-react";
+import { SummaryTableSkeleton } from "./SummaryTableSkeleton";
 
 const weekDays = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -16,10 +17,21 @@ const amountOfDaysToFill = minimumSummaryDatesSize - summaryDates.length;
 
 export function SummaryTable() {
   const { summary, reloadSummary } = useSummary();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    reloadSummary();
+    const loadData = async () => {
+      setIsLoading(true);
+      await reloadSummary();
+      setIsLoading(false);
+    };
+
+    loadData();
   }, [reloadSummary]);
+
+  if (isLoading) {
+    return <SummaryTableSkeleton />;
+  }
 
   return (
     <div className="w-full flex justify-center items-center">

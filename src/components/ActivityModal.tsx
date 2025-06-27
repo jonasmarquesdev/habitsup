@@ -1,10 +1,9 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { ScrollArea } from "./ui/scroll-area";
-import { useAuth } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/axios";
 import { Habit } from "@/interfaces/Habit";
 import { CalendarDays, ListTodo } from "lucide-react";
+import { getHabits } from "@/lib/actions/habits";
 
 export function ActivityModal({
   open,
@@ -13,7 +12,6 @@ export function ActivityModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { getUsuario } = useAuth();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,14 +19,23 @@ export function ActivityModal({
     if (!open) return;
     const fetchHabits = async () => {
       setLoading(true);
-      const user = await getUsuario();
-      if (!user?.id) return;
-      const response = await api.get(`/users/${user.id}/habits`);
-      setHabits(response.data);
-      setLoading(false);
+      try {
+        const result = await getHabits();
+        if (result.success && result.habits) {
+          setHabits(result.habits as Habit[]);
+        } else {
+          console.error("Erro ao buscar hábitos:", result.message);
+          setHabits([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar hábitos:", error);
+        setHabits([]);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchHabits();
-  }, [open, getUsuario]);
+  }, [open]);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

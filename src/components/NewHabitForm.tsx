@@ -1,13 +1,11 @@
 "use client";
 
 import { useSummary } from "@/contexts/SummaryContext";
-import { useAuth } from "@/contexts/UserContext";
-import { api } from "@/lib/axios";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
 import { useState } from "react";
 import { showToastMessage, showToastPromise } from "./ToastMessage";
-import { useRouter } from "next/navigation";
+import { createHabit } from "@/lib/actions/habits";
 
 const availableWeekDays = [
   "Domingo",
@@ -23,30 +21,23 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
   const [title, setTitle] = useState("");
   const [weekDays, setWeekDays] = useState<number[]>([]);
   const { reloadSummary } = useSummary();
-  const { getUsuario } = useAuth();
-  const router = useRouter();
 
   async function createNewHabit(event: React.FormEvent) {
     event.preventDefault();
-    const currentUser = await getUsuario();
 
     if (!title || weekDays.length === 0) {
-      return;
-    }
-
-    if (!currentUser || !currentUser.id) {
       showToastMessage({
-        message: "Você precisa estar logado para acessar esta página.",
+        message: "Preencha o título e selecione pelo menos um dia da semana.",
         type: "error",
       });
-      router.push("/login");
       return;
     }
 
-    const habitPromise = api.post("habits", {
-      title,
-      weekDays,
-      userId: currentUser.id,
+    const habitPromise = createHabit(title, weekDays).then((result) => {
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
     });
 
     showToastPromise(habitPromise, {

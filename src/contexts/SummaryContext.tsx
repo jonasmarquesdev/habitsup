@@ -1,9 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
-import { api } from "@/lib/axios";
 import { Summary } from "@/types/summary";
-import { useAuth } from "./UserContext";
+import { getSummary } from "@/lib/actions/habits";
 
 interface SummaryContextProps {
   summary: Summary;
@@ -16,18 +15,22 @@ const SummaryContext = createContext<SummaryContextProps>({
 });
 
 export function SummaryProvider({ children }: { children: React.ReactNode }) {
-  const { getUsuario } = useAuth();
   const [summary, setSummary] = useState<Summary>([]);
 
   const reloadSummary = useCallback(async () => {
-    const currentUser = await getUsuario();
-    if (!currentUser?.id) {
+    try {
+      const result = await getSummary();
+      if (result.success) {
+        setSummary(result.data as Summary);
+      } else {
+        setSummary([]);
+        console.error("Erro ao carregar resumo:", result.message);
+      }
+    } catch (error) {
       setSummary([]);
-      return;
+      console.error("Erro ao carregar resumo:", error);
     }
-    const response = await api.get(`/summary?userId=${currentUser.id}`);
-    setSummary(response.data);
-  }, [getUsuario]);
+  }, []);
 
   return (
     <SummaryContext.Provider value={{ summary, reloadSummary }}>

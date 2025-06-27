@@ -1,4 +1,3 @@
-import { api } from "@/lib/axios";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check } from "phosphor-react";
 import { useEffect, useState } from "react";
@@ -6,51 +5,46 @@ import dayjs from "../lib/dayjs";
 import clsx from "clsx";
 import { useSummary } from "@/contexts/SummaryContext";
 import { Skeleton } from "./ui/skeleton";
-import { useAuth } from "@/contexts/UserContext";
 import { showToastMessage } from "./ToastMessage";
+import { getDay, toggleHabit } from "@/lib/actions/habits";
+
+interface HabitListInfo {
+  possibleHabits: {
+    id: string;
+    title: string;
+    created_at: Date;
+    userId: string;
+  }[];
+  completedHabits: string[];
+}
 
 interface HabitListProps {
   date: Date;
   onCompletedChanged: (completed: number) => void;
 }
 
-interface HabitInfo {
-  possibleHabits: Array<{
-    id: string;
-    title: string;
-    created_at: string;
-  }>;
-  completedHabits: Array<string>;
-}
-
 export function HabitList({ date, onCompletedChanged }: HabitListProps) {
-  const [habitsInfo, setHabitsInfo] = useState<HabitInfo>();
+  const [habitsInfo, setHabitsInfo] = useState<HabitListInfo | undefined>(undefined);
   const { reloadSummary } = useSummary();
-  const { getUsuario } = useAuth();
 
   useEffect(() => {
     async function fetchHabits() {
-      const user = await getUsuario();
-      const userId = user?.id;
-      if (!userId) return;
-      api
-        .get("day", {
-          params: {
-            date: date.toISOString(),
-            userId: userId,
-          },
-        })
-        .then((response) => {
-          setHabitsInfo(response.data);
-        });
+      try {
+        const result = await getDay(date);
+        if (result.success) {
+          setHabitsInfo(result.data);
+        } else {
+          console.error("Erro ao buscar hábitos:", result.message);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar hábitos:", error);
+      }
     }
     fetchHabits();
-  }, [date, getUsuario]);
+  }, [date]);
 
   async function handleToggleHabit(habitId: string) {
-    const user = await getUsuario();
-    const userId = user?.id;
-    if (!userId || !habitsInfo) return;
+    if (!habitsInfo) return;
 
     // Salve o estado anterior
     const prevHabitsInfo = { ...habitsInfo };
@@ -76,29 +70,29 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     onCompletedChanged(completedHabits.length);
 
     try {
-      const response = await api.patch(`/habits/${habitId}/toggle/${userId}`);
+      const result = await toggleHabit(habitId);
       
-      // Verificar se a resposta foi bem-sucedida
-      if (response.status === 200) {
-        // Aguardar um pouco e então recarregar
+      if (result.success) {
         await new Promise(resolve => setTimeout(resolve, 300));
         await reloadSummary();
-      }
 
-      if (
-        !isHabitAlreadyCompleted &&
-        completedHabits.length === habitsInfo.possibleHabits.length &&
-        completedHabits.length > 0
-      ) {
-        showToastMessage({
-          message: "Parabéns! Você completou todas as activity do dia!",
-          type: "success",
-        });
+        if (
+          !isHabitAlreadyCompleted &&
+          completedHabits.length === habitsInfo.possibleHabits.length &&
+          completedHabits.length > 0
+        ) {
+          showToastMessage({
+            message: "Parabéns! Você completou todas as activity do dia!",
+            type: "success",
+          });
+        } else {
+          showToastMessage({
+            message: "Activity atualizada com sucesso!",
+            type: "success",
+          });
+        }
       } else {
-        showToastMessage({
-          message: "Activity atualizada com sucesso!",
-          type: "success",
-        });
+        throw new Error(result.message);
       }
     } catch (error) {
       // Rollback

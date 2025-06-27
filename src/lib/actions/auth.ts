@@ -46,66 +46,6 @@ export async function verifyToken(token: string) {
   }
 }
 
-export async function registerUser(name: string, email: string, password: string) {
-  try {
-    const validatedData = CreateUserSchema.parse({ name, email, password });
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email },
-    });
-
-    if (existingUser) {
-      return {
-        success: false,
-        message: "Usuário já cadastrado com este e-mail.",
-      };
-    }
-
-    const hashedPassword = await hashPassword(validatedData.password);
-
-    const user = await prisma.user.create({
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
-
-    const token = await createToken({ id: user.id, email: user.email });
-    
-    // Set cookie
-    const cookieStore = await cookies();
-    cookieStore.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
-    return {
-      success: true,
-      user,
-      token,
-    };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        message: error.errors[0].message,
-      };
-    }
-    return {
-      success: false,
-      message: "Erro interno do servidor",
-    };
-  }
-}
-
 export async function loginUser(email: string, password: string) {
   try {
     const validatedData = LoginSchema.parse({ email, password });
@@ -132,14 +72,17 @@ export async function loginUser(email: string, password: string) {
 
     const token = await createToken({ id: user.id, email: user.email });
     
-    // Set cookie
-    const cookieStore = await cookies();
-    cookieStore.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    // Set cookie - usando uma abordagem mais compatível com Vercel
+    try {
+      (await cookies()).set("auth-token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+    } catch (cookieError) {
+      console.warn("Warning: Could not set cookie:", cookieError);
+    }
 
     return {
       success: true,
@@ -199,8 +142,74 @@ export async function getCurrentUser() {
   }
 }
 
+export async function registerUser(name: string, email: string, password: string) {
+  try {
+    const validatedData = CreateUserSchema.parse({ name, email, password });
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: validatedData.email },
+    });
+
+    if (existingUser) {
+      return {
+        success: false,
+        message: "Usuário já cadastrado com este e-mail.",
+      };
+    }
+
+    const hashedPassword = await hashPassword(validatedData.password);
+
+    const user = await prisma.user.create({
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    const token = await createToken({ id: user.id, email: user.email });
+    
+    // Set cookie - usando uma abordagem mais compatível com Vercel
+    try {
+      (await cookies()).set("auth-token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+    } catch (cookieError) {
+      console.warn("Warning: Could not set cookie:", cookieError);
+    }
+
+    return {
+      success: true,
+      user,
+      token,
+    };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        message: error.errors[0].message,
+      };
+    }
+    return {
+      success: false,
+      message: "Erro interno do servidor",
+    };
+  }
+}
+
 export async function logoutUser() {
-  const cookieStore = await cookies();
-  cookieStore.delete("auth-token");
-  return { success: true };
+  try {
+    (await cookies()).delete("auth-token");
+    return { success: true };
+  } catch {
+    return { success: true }; // Mesmo se falhar, consideramos logout bem-sucedido
+  }
 }

@@ -98,7 +98,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (result.success) {
       setUser(result.user as User);
       setIsAuthenticatedBoolean(true);
-      router.push("/");
+      
+      setTimeout(() => {
+        router.push("/");
+      }, 100);
     }
   };
 

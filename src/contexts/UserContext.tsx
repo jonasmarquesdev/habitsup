@@ -124,8 +124,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setUser(null);
     setIsAuthenticatedBoolean(false);
-    const sysActivityUser = crypto.randomUUID();
-    localStorage.setItem("sys-activity-user", sysActivityUser);
+    
+    // Only access localStorage on the client side
+    if (typeof window !== "undefined") {
+      const sysActivityUser = crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36);
+      localStorage.setItem("sys-activity-user", sysActivityUser);
+    }
+    
     router.push("/login");
   };
 

@@ -74,7 +74,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
       
       if (result.success) {
         await new Promise(resolve => setTimeout(resolve, 300));
-        await reloadSummary();
+        reloadSummary();
 
         if (
           !isHabitAlreadyCompleted &&

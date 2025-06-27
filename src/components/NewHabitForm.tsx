@@ -50,7 +50,7 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
       await habitPromise;
       setTitle("");
       setWeekDays([]);
-      await reloadSummary();
+      reloadSummary();
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);

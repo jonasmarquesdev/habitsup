@@ -22,7 +22,7 @@ export function SummaryTable() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      await reloadSummary();
+      reloadSummary();
       setIsLoading(false);
     };
 

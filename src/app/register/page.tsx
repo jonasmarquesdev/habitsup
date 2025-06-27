@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
-import { ApiError } from "@/types/api-error";
 import { useAuth } from "@/contexts/UserContext";
 
 export default function RegisterPage() {
@@ -12,7 +10,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
   const { register } = useAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -21,15 +18,9 @@ export default function RegisterPage() {
 
     try {
       await register(name, email, password);
-      router.push("/login");
     } catch (err: unknown) {
-      const apiErr = err as ApiError;
-      const message = apiErr?.response?.data?.message;
-      if (message) {
-        setError(message);
-      } else {
-        setError("Erro ao conectar com o servidor");
-      }
+      const errorMessage = err instanceof Error ? err.message : "Erro ao conectar com o servidor";
+      setError(errorMessage);
     }
   };
 

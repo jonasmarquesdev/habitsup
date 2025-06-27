@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
-import { ApiError } from "@/types/api-error";
 import { useAuth } from "@/contexts/UserContext";
 
 export default function LoginPage() {
@@ -12,7 +10,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isReturningUser, setIsReturningUser] = useState(false);
-  const router = useRouter();
   const { login } = useAuth();
 
   useEffect(() => {
@@ -26,16 +23,10 @@ export default function LoginPage() {
     setError("");
 
     try {
-      login(email, password);
-      router.push("/");
+      await login(email, password);
     } catch (err: unknown) {
-      const apiErr = err as ApiError;
-      const message = apiErr?.response?.data?.message;
-      if (message) {
-        setError(message);
-      } else {
-        setError("Erro ao conectar com o servidor");
-      }
+      const errorMessage = err instanceof Error ? err.message : "Erro ao conectar com o servidor";
+      setError(errorMessage);
     }
   };
 

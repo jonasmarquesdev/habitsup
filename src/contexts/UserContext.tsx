@@ -1,58 +1,91 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
-import { api } from "@/lib/axios";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AuthContextType } from "@/interfaces/AuthContextType";
 import { User } from "@/interfaces/User";
 import { showToastPromise } from "@/components/ToastMessage";
+import { 
+  registerUser, 
+  loginUser, 
+  getCurrentUser, 
+  logoutUser 
+} from "@/lib/actions/auth";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticatedBoolean, setIsAuthenticatedBoolean] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
   const pathname = usePathname();
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const result = await getCurrentUser();
+        if (result.success) {
+          setUser(result.user as User);
+          setIsAuthenticatedBoolean(true);
+        } else {
+          setUser(null);
+          setIsAuthenticatedBoolean(false);
+          if (pathname !== "/login" && pathname !== "/register") {
+            router.push("/login");
+          }
+        }
+      } catch {
+        setUser(null);
+        setIsAuthenticatedBoolean(false);
+        if (pathname !== "/login" && pathname !== "/register") {
+          router.push("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, [pathname, router]);
+
   const register = async (name: string, email: string, password: string) => {
-    await api.post("/user", { name, email, password });
-    const responseToken = await api.post("/login", { email, password });
-    const { token } = responseToken.data;
-    localStorage.setItem("token", token);
-    setToken(token);
-    if (token) {
-      router.push("/login");
+    const registerPromise = registerUser(name, email, password).then((result) => {
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    });
+
+    await showToastPromise(registerPromise, {
+      loading: "Criando conta...",
+      success: "Conta criada com sucesso!",
+      error: "Erro ao criar conta.",
+    });
+
+    const result = await registerPromise;
+    
+    if (result.success) {
+      setUser(result.user as User);
+      setIsAuthenticatedBoolean(true);
+      router.push("/");
     }
   };
 
   const isAuthenticated = () => {
-    const storedToken = localStorage.getItem("token");
-    if (!storedToken) {
-      if (pathname !== "/login") {
-      router.push("/login");
-    }
-      setIsAuthenticatedBoolean(false);
-    } else {
-      setIsAuthenticatedBoolean(true);
-      getUsuario().catch((error) => {
-        if (error.response && error.response.status === 404) {
-          if (pathname !== "/login") {
-          router.push("/login");
-        }
-          setIsAuthenticatedBoolean(false);
-        } else {
-          setIsAuthenticatedBoolean(true);
-        }
-      });
-    }
+    return isAuthenticatedBoolean;
   };
 
   const login = async (email: string, password: string) => {
-    const loginPromise = api.post("/login", { email, password });
+    const loginPromise = loginUser(email, password).then((result) => {
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    });
 
     await showToastPromise(loginPromise, {
       loading: "Entrando...",
@@ -60,41 +93,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       error: "Erro ao fazer login. Verifique suas credenciais.",
     });
 
-    const response = await loginPromise;
-    const { token } = response.data;
-    localStorage.setItem("token", token);
-    setToken(token);
+    const result = await loginPromise;
 
-    if (token) {
+    if (result.success) {
+      setUser(result.user as User);
+      setIsAuthenticatedBoolean(true);
       router.push("/");
     }
   };
 
   const getUsuario = async (): Promise<User | undefined> => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      const response = await api.get("/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
+    if (user) return user;
+    
+    const result = await getCurrentUser();
+    if (result.success) {
+      setUser(result.user as User);
+      return result.user as User;
     }
+    return undefined;
   };
 
   const logout = async () => {
-    const logoutPromise = new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const sysActivityUser = crypto.randomUUID();
-        localStorage.setItem("sys-activity-user", sysActivityUser);
-        localStorage.removeItem("token");
-        setToken(null);
-        resolve();
-      }, 1000);
-    });
+    const logoutPromise = logoutUser();
 
     await showToastPromise(logoutPromise, {
       loading: "Saindo...",
@@ -102,13 +122,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       error: "Erro ao fazer logout.",
     });
 
+    setUser(null);
+    setIsAuthenticatedBoolean(false);
+    const sysActivityUser = crypto.randomUUID();
+    localStorage.setItem("sys-activity-user", sysActivityUser);
     router.push("/login");
   };
 
   return (
     <AuthContext.Provider
       value={{
-        token,
+        user,
+        loading,
         register,
         login,
         logout,

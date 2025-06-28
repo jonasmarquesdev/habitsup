@@ -17,12 +17,14 @@ export function HabitDayBlock({
 }: HabitDay) {
   const [completed, setCompleted] = useState(defaultCompleted);
 
-  const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());
+  // Normalize date to avoid timezone issues
+  const normalizedDate = dayjs(date).startOf('day');
+  const isDateInPast = normalizedDate.isBefore(dayjs().startOf('day'));
 
   const completedPercentage =
     amount > 0 ? Math.round((completed / amount) * 100) : 0;
-  const dayAndMonth = dayjs(date).format("DD/MM");
-  const dayOfWeek = dayjs(date).locale("pt-br").format("dddd").toLowerCase();
+  const dayAndMonth = normalizedDate.format("DD/MM");
+  const dayOfWeek = normalizedDate.locale("pt-br").format("dddd").toLowerCase();
 
   function handleCompletedChanged(completed: number) {
     setCompleted(completed);

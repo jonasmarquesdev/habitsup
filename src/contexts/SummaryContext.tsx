@@ -21,7 +21,12 @@ export function SummaryProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await getSummary();
       if (result.success) {
-        setSummary(result.data as Summary);
+        // Normalize dates to ensure consistency
+        const normalizedSummary = (result.data as Summary).map(item => ({
+          ...item,
+          date: typeof item.date === 'string' ? item.date : item.date.toISOString()
+        }));
+        setSummary(normalizedSummary);
       } else {
         setSummary([]);
         console.error("Erro ao carregar resumo:", result.message);

@@ -62,7 +62,10 @@ export function SummaryTable() {
           <>
             {summaryDates.map((date) => {
               const dayInSummary = summary.find((day) => {
-                return dayjs(date).isSame(day.date, "day");
+                // Normalize both dates to ensure proper comparison
+                const summaryDate = dayjs(day.date).format('YYYY-MM-DD');
+                const currentDate = dayjs(date).format('YYYY-MM-DD');
+                return summaryDate === currentDate;
               });
 
               return (

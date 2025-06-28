@@ -195,7 +195,7 @@ export async function getSummary() {
           JOIN habits H ON H.id = HWD.habit_id
           WHERE 
             HWD.week_day = CAST(EXTRACT(DOW FROM D.date) AS INT)
-            AND H.created_at::date <= D.date::date
+            AND DATE(H.created_at) <= DATE(D.date)
             AND H."userId" = ${userId}
         ) as amount
       FROM days D

@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { ScrollArea } from "./ui/scroll-area";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Habit } from "@/interfaces/Habit";
 import { CalendarDays, ListTodo, Trash2, AlertTriangle, X } from "lucide-react";
 import { getHabits, deleteHabit } from "@/lib/actions/habits";
@@ -20,6 +20,8 @@ export function ActivityModal({
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const { reloadSummary } = useSummary();
 
   const fetchHabits = async () => {
@@ -44,6 +46,29 @@ export function ActivityModal({
     setHabitToDelete(habit);
     setConfirmDialogOpen(true);
   };
+
+  const handleHabitClick = (habitId: string) => {
+    if (selectedHabitId === habitId) {
+      setIsAnimatingOut(true);
+      setTimeout(() => {
+        setSelectedHabitId(null);
+        setIsAnimatingOut(false);
+      }, 200); 
+    } else {
+      setSelectedHabitId(habitId);
+      setIsAnimatingOut(false);
+    }
+  };
+
+  const hideSelectedHabit = useCallback(() => {
+    if (selectedHabitId) {
+      setIsAnimatingOut(true);
+      setTimeout(() => {
+        setSelectedHabitId(null);
+        setIsAnimatingOut(false);
+      }, 200);
+    }
+  }, [selectedHabitId]);
 
   const handleConfirmDelete = async () => {
     if (!habitToDelete) return;
@@ -75,24 +100,52 @@ export function ActivityModal({
 
   useEffect(() => {
     if (!open) return;
+    setSelectedHabitId(null);
     fetchHabits();
   }, [open]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('li') && !target.closest('[role="toolbar"]')) {
+        hideSelectedHabit();
+      }
+    };
+
+    if (open && selectedHabitId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [open, selectedHabitId, hideSelectedHabit]);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 min-w-[600px] max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-zinc-900 p-6 shadow-lg">
-          <Dialog.Title className="text-xl font-bold mb-4">
-            Seus hábitos
-          </Dialog.Title>
-          <ScrollArea className="h-80 w-full pr-6 pl-6">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 min-w-[800px] max-w-[800px] min-h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-zinc-900 p-6 shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <Dialog.Title className="text-xl font-bold">
+              Seus hábitos
+            </Dialog.Title>
+            <Dialog.Close asChild>
+              <button 
+                className="rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-zinc-950 dark:focus:ring-zinc-300 p-1 hover:bg-zinc-800"
+                aria-label="Fechar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </Dialog.Close>
+          </div>
+          <ScrollArea className="h-[600px] w-full pr-6 pl-6 transition-all">
             {loading ? (
-              <div className="flex items-center justify-center min-h-[20rem]">
+              <div className="flex items-center justify-center min-h-[35rem] gap-4">
                 <Loading />
+                <span className="text-white">Carregando...</span>
               </div>
             ) : habits.length === 0 ? (
-              <div className="text-center text-zinc-400">
+              <div className="text-center text-zinc-400 flex items-center justify-center min-h-[20rem]">
                 Nenhum hábito cadastrado.
               </div>
             ) : (
@@ -100,8 +153,10 @@ export function ActivityModal({
                 {habits.map((habit) => (
                   <li
                     key={habit.id}
-                    className="group relative flex items-center justify-between bg-zinc-800 rounded-lg px-4 py-3 shadow-sm hover:bg-zinc-700 transition"
+                    className="group relative flex items-center justify-between bg-zinc-800 rounded-lg px-4 py-3 shadow-sm hover:bg-zinc-700 transition cursor-pointer"
+                    onClick={() => handleHabitClick(habit.id)}
                   >
+                    {/* Item Info */}
                     <div className="flex flex-col justify-center gap-2">
                       <div className="flex items-center gap-2 font-semibold text-violet-400">
                         <ListTodo className="w-5 h-5" />
@@ -128,32 +183,36 @@ export function ActivityModal({
                         </span>
                       </div>
                     </div>
-                    <div
-                      className="p-1 z-10 absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-all h-10 w-10 bg-zinc-900 border-zinc-800 rounded-lg flex items-center justify-center"
-                      role="toolbar"
-                      aria-label="Ferramentas do hábito"
-                    >
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-10 w-10 text-zinc-400 hover:text-red-400 hover:bg-red-700/50 rounded-lg border-2"
-                        aria-label="Excluir hábito"
-                        disabled={deletingHabitId === habit.id}
-                        onClick={() => handleDeleteClick(habit)}
+
+                    {/* ToolBar Menu */}
+                    {(selectedHabitId === habit.id || (isAnimatingOut && selectedHabitId === habit.id)) && (
+                      <div
+                        className={`p-1 z-10 absolute top-5 right-5 h-10 w-10 bg-zinc-900 border-zinc-800 rounded-lg flex items-center justify-center ${
+                          isAnimatingOut 
+                            ? 'animate-out slide-out-to-right-2 fade-out duration-200' 
+                            : 'animate-in slide-in-from-right-2 fade-in duration-200'
+                        }`}
+                        role="toolbar"
+                        aria-label="Ferramentas do hábito"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-10 w-10 text-zinc-400 hover:text-red-400 hover:bg-red-700/50 rounded-lg border-2"
+                          aria-label="Excluir hábito"
+                          disabled={deletingHabitId === habit.id}
+                          onClick={() => handleDeleteClick(habit)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
           </ScrollArea>
-          <Dialog.Close asChild>
-            <button className="mt-4 w-full rounded bg-violet-600 py-2 text-white font-semibold hover:bg-violet-500 transition">
-              Fechar
-            </button>
-          </Dialog.Close>
         </Dialog.Content>
       </Dialog.Portal>
       

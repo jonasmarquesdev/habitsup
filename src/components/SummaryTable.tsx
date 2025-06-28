@@ -24,7 +24,6 @@ export function SummaryTable() {
       setIsLoading(true);
       reloadSummary();
       setIsLoading(false);
-      console.log("Summary data loaded:", summary);
     };
 
     loadData();

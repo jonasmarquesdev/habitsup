@@ -223,3 +223,63 @@ export async function getSummary() {
     return { success: false, message: "Erro ao buscar resumo" };
   }
 }
+
+export async function deleteHabit(habitId: string) {
+  try {
+    const userResult = await getCurrentUser();
+    if (!userResult.success) {
+      return { success: false, message: "Usuário não autenticado" };
+    }
+
+    if (!userResult.user) {
+      return { success: false, message: "Usuário não autenticado" };
+    }
+
+    const deleteHabitSchema = z.object({
+      habitId: z.string().uuid("ID do hábito inválido"),
+    });
+
+    const validatedData = deleteHabitSchema.parse({ habitId });
+    const userId = userResult.user.id;
+
+    // Verificar se o hábito pertence ao usuário
+    const habit = await prisma.habit.findFirst({
+      where: {
+        id: validatedData.habitId,
+        userId: userId,
+      },
+    });
+
+    if (!habit) {
+      return { success: false, message: "Hábito não encontrado" };
+    }
+
+    // Excluir registros relacionados primeiro para evitar violação de constraint
+    await prisma.$transaction(async (tx) => {
+      // Excluir daily habit availability
+      await tx.dailyHabitAvailability.deleteMany({
+        where: { habit_id: validatedData.habitId },
+      });
+
+      // Excluir day habits
+      await tx.dayHabit.deleteMany({
+        where: { habit_id: validatedData.habitId },
+      });
+
+      // Excluir week days
+      await tx.habitWeekDays.deleteMany({
+        where: { habit_id: validatedData.habitId },
+      });
+
+      // Finalmente excluir o hábito
+      await tx.habit.delete({
+        where: { id: validatedData.habitId },
+      });
+    });
+
+    return { success: true, message: "Hábito excluído com sucesso" };
+  } catch (error) {
+    console.error("Erro ao excluir hábito:", error);
+    return { success: false, message: "Erro ao excluir hábito" };
+  }
+}

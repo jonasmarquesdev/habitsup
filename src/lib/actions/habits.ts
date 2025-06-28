@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { getCurrentUser } from "./auth";
 
 export async function getHabits() {

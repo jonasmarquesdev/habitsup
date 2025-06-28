@@ -108,6 +108,31 @@ export async function createHabit(title: string, weekDays: number[]) {
       },
     });
 
+    // Buscar todos os dias existentes do usuário
+    const existingDays = await prisma.day.findMany({
+      where: { 
+        userId,
+        date: { gte: today } // Só considerar dias a partir de hoje
+      }
+    });
+
+    // Criar DailyHabitAvailability para os dias que correspondem aos weekDays
+    const availabilityRecords = existingDays
+      .filter(day => {
+        const dayWeekDay = dayjs(day.date).get('day');
+        return validatedData.weekDays.includes(dayWeekDay);
+      })
+      .map(day => ({
+        day_id: day.id,
+        habit_id: habit.id
+      }));
+
+    if (availabilityRecords.length > 0) {
+      await prisma.dailyHabitAvailability.createMany({
+        data: availabilityRecords
+      });
+    }
+
     return { success: true, habit };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -183,23 +208,13 @@ export async function getSummary() {
       SELECT 
         D.id,
         D.date,
-        (
-          SELECT cast(count(*) as float)
-          FROM day_habits DH
-          JOIN habits H ON H.id = DH.habit_id
-          WHERE DH.day_id = D.id AND H."userId" = ${userId}
-        ) as completed,
-        (
-          SELECT cast(count(*) as float)
-          FROM habit_week_days HWD
-          JOIN habits H ON H.id = HWD.habit_id
-          WHERE 
-            HWD.week_day = CAST(EXTRACT(DOW FROM D.date) AS INT)
-            AND DATE(H.created_at) <= DATE(D.date)
-            AND H."userId" = ${userId}
-        ) as amount
+        COALESCE(CAST(COUNT(DISTINCT DH.id) AS FLOAT), 0) as completed,
+        COALESCE(CAST(COUNT(DISTINCT DHA.id) AS FLOAT), 0) as amount
       FROM days D
+      LEFT JOIN day_habits DH ON DH.day_id = D.id
+      LEFT JOIN daily_habit_availability DHA ON DHA.day_id = D.id
       WHERE D."userId" = ${userId}
+      GROUP BY D.id, D.date
       ORDER BY D.date
     `;
 

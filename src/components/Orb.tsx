@@ -8,7 +8,7 @@ interface OrbProps {
 }
 
 export function Orb({ amount, completed, date, style }: OrbProps) {
-  const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());
+  const isDateInPast = dayjs(date).utc().startOf('day').isBefore(dayjs().utc().startOf('day'));
 
   if (style === "violet") {
     return (

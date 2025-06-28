@@ -138,7 +138,7 @@ export async function createHabit(title: string, weekDays: number[]) {
     if (error instanceof z.ZodError) {
       return { success: false, message: error.errors[0].message };
     }
-    return { success: false, message: "Erro ao criar hábito" };
+    return { success: false, message: `Erro ao criar hábito: ${error}` };
   }
 }
 

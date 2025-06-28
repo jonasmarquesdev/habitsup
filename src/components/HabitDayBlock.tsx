@@ -17,9 +17,9 @@ export function HabitDayBlock({
 }: HabitDay) {
   const [completed, setCompleted] = useState(defaultCompleted);
 
-  // Normalize date to avoid timezone issues
-  const normalizedDate = dayjs(date).startOf('day');
-  const isDateInPast = normalizedDate.isBefore(dayjs().startOf('day'));
+  // Normalize date to UTC to avoid timezone issues
+  const normalizedDate = dayjs(date).utc().startOf('day');
+  const isDateInPast = normalizedDate.isBefore(dayjs().utc().startOf('day'));
 
   const completedPercentage =
     amount > 0 ? Math.round((completed / amount) * 100) : 0;

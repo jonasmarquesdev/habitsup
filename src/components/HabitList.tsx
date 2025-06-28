@@ -105,7 +105,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     }
   }
 
-  const isDateInPast = dayjs(date).startOf('day').isBefore(dayjs().startOf('day'));
+  const isDateInPast = dayjs(date).utc().startOf('day').isBefore(dayjs().utc().startOf('day'));
 
   return (
     <div

@@ -40,7 +40,7 @@ export async function getDay(date: Date) {
     }
 
     const userId = userResult.user.id;
-    const parsedDate = dayjs(date).startOf("day");
+    const parsedDate = dayjs(date).utc().startOf("day");
     const weekDay = parsedDate.get("day");
 
     const possibleHabits = await prisma.habit.findMany({
@@ -85,7 +85,7 @@ export async function createHabit(title: string, weekDays: number[]) {
 
     const validatedData = createHabitSchema.parse({ title, weekDays });
     const userId = userResult.user.id;
-    const today = dayjs().startOf("day").toDate();
+    const today = dayjs().utc().startOf("day").toDate();
 
     let day = await prisma.day.findUnique({
       where: { date_userId: { date: today, userId } },
@@ -119,7 +119,7 @@ export async function createHabit(title: string, weekDays: number[]) {
     // Criar DailyHabitAvailability para os dias que correspondem aos weekDays
     const availabilityRecords = existingDays
       .filter(day => {
-        const dayWeekDay = dayjs(day.date).get('day');
+        const dayWeekDay = dayjs(day.date).utc().get('day');
         return validatedData.weekDays.includes(dayWeekDay);
       })
       .map(day => ({
@@ -159,7 +159,7 @@ export async function toggleHabit(habitId: string) {
 
     const validatedData = toggleHabitSchema.parse({ habitId });
     const userId = userResult.user.id;
-    const today = dayjs().startOf("day").toDate();
+    const today = dayjs().utc().startOf("day").toDate();
 
     let day = await prisma.day.findUnique({
       where: { date_userId: { date: today, userId } },

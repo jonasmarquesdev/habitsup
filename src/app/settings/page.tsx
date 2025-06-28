@@ -27,21 +27,59 @@ const SettingsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white">
-        <div className="container max-w-2xl mx-auto p-6">
-          <div className="flex items-center justify-between mb-8">
-            <Skeleton className="h-6 w-32 bg-zinc-700" />
-            <Skeleton className="h-8 w-8 bg-zinc-700" />
-          </div>
-          <div className="space-y-6">
-            <Skeleton className="h-24 w-24 rounded-full bg-zinc-700 mx-auto" />
-            <div className="space-y-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-24 bg-zinc-700" />
-                  <Skeleton className="h-12 w-full bg-zinc-700 rounded-lg" />
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="flex justify-center w-full max-w-7xl px-6">
+          {/* Sidebar Skeleton */}
+          <div className="w-80 bg-zinc-900 min-h-screen p-4 border-r border-zinc-800">
+            <div className="mb-6">
+              <Skeleton className="h-6 w-16 bg-zinc-700" />
+            </div>
+            <div className="space-y-6">
+              <div>
+                <Skeleton className="h-4 w-40 bg-zinc-700 mb-3" />
+                <div className="space-y-1">
+                  <Skeleton className="h-10 w-full bg-zinc-700 rounded-md" />
                 </div>
-              ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="flex-1 px-8 flex justify-center w-full py-20">
+            <div className="max-w-2xl w-full">
+              {/* Tabs Skeleton */}
+              <div className="flex gap-6 mb-8 border-b border-zinc-800">
+                <Skeleton className="h-6 w-20 bg-zinc-700" />
+                <Skeleton className="h-6 w-16 bg-zinc-700" />
+              </div>
+
+              {/* Profile Section Skeleton */}
+              <div className="bg-zinc-900 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <Skeleton className="w-20 h-20 rounded-full bg-zinc-700" />
+                  <div className="flex-1">
+                    <Skeleton className="h-6 w-32 bg-zinc-700 mb-2" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-4 h-4 rounded-full bg-zinc-700" />
+                      <Skeleton className="w-4 h-4 rounded-full bg-zinc-700" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-10 w-40 bg-zinc-700 rounded-md" />
+                </div>
+
+                {/* Form Fields Skeleton */}
+                <div className="space-y-6">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i}>
+                      <Skeleton className="h-4 w-24 bg-zinc-700 mb-2" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="flex-1 h-10 bg-zinc-700 rounded-md" />
+                        <Skeleton className="h-8 w-16 bg-zinc-700 rounded-md" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -121,7 +159,7 @@ const SettingsPage = () => {
     username: user?.email?.split("@")[0] || "",
     email: user?.email || "",
     phone: "************8743",
-    image: "https://firebasestorage.googleapis.com/v0/b/storage-1cbb2.appspot.com/o/image.webp?alt=media&token=a492879a-7cef-4531-bf97-93d0e64e7023",
+    image: user?.image,
   };
 
   return (
@@ -192,10 +230,17 @@ const SettingsPage = () => {
             <div className="bg-zinc-900 rounded-lg p-6 mb-6">
               <div className="flex items-center gap-4 mb-6">
                 <Avatar className="w-20 h-20">
-                  <AvatarImage src={userProfileData.image} />
-                  <AvatarFallback className="text-lg">
-                    {userProfileData.displayName?.split(" ")[0]?.[0]}
-                    {userProfileData.displayName?.split(" ")[1]?.[0] ?? ""}
+                  <AvatarImage
+                    src={userProfileData.image}
+                    className="transition-opacity duration-300"
+                  />
+                  <AvatarFallback className="text-lg bg-zinc-700 text-white">
+                    {userProfileData.displayName
+                      ?.split(" ")[0]?.[0]
+                      ?.toUpperCase() || "U"}
+                    {userProfileData.displayName
+                      ?.split(" ")[1]?.[0]
+                      ?.toUpperCase() ?? ""}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -211,7 +256,7 @@ const SettingsPage = () => {
                     </div>
                   </div>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                   Editar perfil de usuário
                 </Button>
               </div>
@@ -224,13 +269,13 @@ const SettingsPage = () => {
                     Nome Exibido
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-zinc-800 rounded-md px-3 py-2 text-white">
+                    <div className="flex-1 rounded-md px-3 py-2 text-white">
                       {userProfileData.displayName}
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-zinc-400 hover:text-white px-2"
+                      className="text-zinc-400 hover:text-white px-2 bg-zinc-800 hover:bg-zinc-600"
                     >
                       Editar
                     </Button>
@@ -243,13 +288,13 @@ const SettingsPage = () => {
                     Nome De Usuário
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-zinc-800 rounded-md px-3 py-2 text-white">
+                    <div className="flex-1 rounded-md px-3 py-2 text-white">
                       {userProfileData.username}_
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-zinc-400 hover:text-white px-2"
+                      className="text-zinc-400 hover:text-white px-2 opacity-0"
                     >
                       Editar
                     </Button>
@@ -262,7 +307,7 @@ const SettingsPage = () => {
                     E-Mail
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-zinc-800 rounded-md px-3 py-2 text-white">
+                    <div className="flex-1 rounded-md px-3 py-2 text-white">
                       {userProfileData.email.replace(/(.{3}).*(@.*)/, "***$2")}
                       <span className="text-blue-400 ml-2 text-sm cursor-pointer hover:underline">
                         Mostrar
@@ -271,7 +316,7 @@ const SettingsPage = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-zinc-400 hover:text-white px-2"
+                      className="text-zinc-400 hover:text-white px-2 bg-zinc-800 hover:bg-zinc-600"
                     >
                       Editar
                     </Button>
@@ -284,7 +329,7 @@ const SettingsPage = () => {
                     Telefone
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-zinc-800 rounded-md px-3 py-2 text-white">
+                    <div className="flex-1 rounded-md px-3 py-2 text-white">
                       {userProfileData.phone}
                       <span className="text-blue-400 ml-2 text-sm cursor-pointer hover:underline">
                         Mostrar
@@ -301,7 +346,7 @@ const SettingsPage = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-zinc-400 hover:text-white px-2"
+                        className="text-zinc-400 hover:text-white px-2 bg-zinc-800 hover:bg-zinc-600"
                       >
                         Editar
                       </Button>

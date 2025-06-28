@@ -6,6 +6,7 @@ import { CalendarDays, ListTodo, Trash2, AlertTriangle, X } from "lucide-react";
 import { getHabits, deleteHabit } from "@/lib/actions/habits";
 import { Button } from "./ui/button";
 import { useSummary } from "@/contexts/SummaryContext";
+import Loading from "./Loading";
 
 export function ActivityModal({
   open,
@@ -81,13 +82,15 @@ export function ActivityModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-zinc-900 p-6 shadow-lg">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 min-w-[600px] max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-zinc-900 p-6 shadow-lg">
           <Dialog.Title className="text-xl font-bold mb-4">
             Seus hábitos
           </Dialog.Title>
           <ScrollArea className="h-80 w-full pr-6 pl-6">
             {loading ? (
-              <div className="text-center text-zinc-400">Carregando...</div>
+              <div className="flex items-center justify-center min-h-[20rem]">
+                <Loading />
+              </div>
             ) : habits.length === 0 ? (
               <div className="text-center text-zinc-400">
                 Nenhum hábito cadastrado.

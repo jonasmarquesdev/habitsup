@@ -5,6 +5,7 @@ import { Habit } from "@/interfaces/Habit";
 import { CalendarDays, ListTodo, Trash2, AlertTriangle, X } from "lucide-react";
 import { getHabits, deleteHabit } from "@/lib/actions/habits";
 import { Button } from "./ui/button";
+import { useSummary } from "@/contexts/SummaryContext";
 
 export function ActivityModal({
   open,
@@ -18,6 +19,7 @@ export function ActivityModal({
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
+  const { reloadSummary } = useSummary();
 
   const fetchHabits = async () => {
     setLoading(true);
@@ -51,6 +53,7 @@ export function ActivityModal({
     try {
       const result = await deleteHabit(habitToDelete.id);
       if (result.success) {
+        reloadSummary();
         await fetchHabits();
       } else {
         alert(result.message || "Erro ao excluir hábito");

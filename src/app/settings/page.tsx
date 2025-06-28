@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/UserContext";
 import { User } from "@/interfaces/User";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -163,9 +163,9 @@ const SettingsPage = () => {
                           </div>
                         )}
                       </div>
-                      {item.hasNotification && (
+                      {/* {item.hasNotification && (
                         <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      )}
+                      )} */}
                     </div>
                   ))}
                 </div>
@@ -178,17 +178,6 @@ const SettingsPage = () => {
         <div className="flex-1 px-8 flex justify-center w-full py-20">
           <div className="max-w-2xl w-full">
             {/* Header */}
-            <div className="flex justify-between mb-8">
-              <h1 className="text-2xl font-semibold">Minha conta</h1>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-zinc-400 hover:text-white"
-              >
-                <X size={20} />
-              </Button>
-            </div>
-
             {/* Security and Status Tabs */}
             <div className="flex gap-6 mb-8 border-b border-zinc-800">
               <button className="pb-3 text-blue-400 border-b-2 border-blue-400 font-medium">

@@ -87,7 +87,10 @@ const UserMenu = () => {
 
   return (
     <div className="flex h-full items-center justify-between">
-      <ActivityModal open={activityModalOpen} onOpenChange={setActivityModalOpen} />
+      <ActivityModal
+        open={activityModalOpen}
+        onOpenChange={setActivityModalOpen}
+      />
       <Sheet>
         <SheetTrigger asChild>
           <Button
@@ -148,7 +151,17 @@ const UserMenu = () => {
                     <span className="block">{button.label}</span>
                   </Link>
                 ) : (
-                  <Link href={button.href}>
+                  <Link
+                    href={button.href}
+                    className=""
+                    tabIndex={button.label === "Assinatura" ? -1 : 0}
+                    aria-disabled={button.label === "Assinatura"}
+                    style={
+                      button.label === "Assinatura"
+                        ? { pointerEvents: "none", opacity: 0.5 }
+                        : {}
+                    }
+                  >
                     {button.icon}
                     <span className="block">{button.label}</span>
                   </Link>

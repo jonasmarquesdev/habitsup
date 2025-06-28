@@ -16,12 +16,6 @@ export default function Home() {
 
   useEffect(() => {
     isAuthenticated();
-    if (!isAuthenticatedBoolean) {
-      if (pathname !== "/login" && pathname !== "/register") {
-        router.push("/login");
-      }
-      return;
-    }
     reloadSummary();
   }, [isAuthenticated, reloadSummary, isAuthenticatedBoolean, pathname , router]);
 

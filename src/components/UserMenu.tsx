@@ -16,7 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { useAuth } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
@@ -65,7 +65,7 @@ const UserMenu = () => {
     },
     {
       label: "Configurações",
-      href: "/#",
+      href: "/settings",
       icon: <Settings size={16} />,
     },
   ];
@@ -99,7 +99,7 @@ const UserMenu = () => {
           >
             <p>{data?.user?.name}</p>
             <Avatar>
-              {/* <AvatarImage src={data?.user?.image as string | undefined} /> */}
+              <AvatarImage src={data?.user?.image as string | undefined} />
               <AvatarFallback>
                 {data?.user?.name?.split(" ")[0]?.[0]}
                 {data?.user?.name?.split(" ")[1]?.[0] ?? ""}
@@ -116,7 +116,7 @@ const UserMenu = () => {
           <div className="flex justify-between pt-6">
             <div className="flex items-center gap-3">
               <Avatar>
-                {/* <AvatarImage src={data?.user?.image as string | undefined} /> */}
+                <AvatarImage src={data?.user?.image as string | undefined} />
                 <AvatarFallback>
                   {data?.user?.name?.split(" ")[0]?.[0]}
                   {data?.user?.name?.split(" ")[1]?.[0] ?? ""}

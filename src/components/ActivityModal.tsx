@@ -275,7 +275,7 @@ export function ActivityModal({
                   >
                     {/* Item Info */}
                     <div className="flex flex-col justify-center gap-2">
-                      <div className="flex items-center select-none gap-2 font-semibold text-violet-400">
+                      <div className="flex items-center select-none gap-2 font-semibold text-white">
                         <ListTodo className="w-5 h-5" />
                         {habit.title}
                       </div>

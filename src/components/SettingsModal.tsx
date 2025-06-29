@@ -7,8 +7,9 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAuth } from "@/contexts/UserContext";
 import { User } from "@/interfaces/User";
-import { X } from "lucide-react";
+import { X, Camera } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+import { updateUserImage } from "@/lib/actions/updateUserImage";
 
 export function SettingsModal({
   open,
@@ -20,6 +21,8 @@ export function SettingsModal({
   const { getUsuario, isAuthenticatedBoolean } = useAuth();
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticatedBoolean || !open) return;
@@ -31,6 +34,44 @@ export function SettingsModal({
     };
     fetchUser();
   }, [getUsuario, isAuthenticatedBoolean, open]);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    setUploadingImage(true);
+    setUploadError(null);
+
+    try {
+      const result = await updateUserImage(user.id, file);
+      
+      if (result.success) {
+        // Atualizar o estado local do usuário
+        setUser(prev => prev ? { ...prev, image: result.imageUrl } : prev);
+      } else {
+        setUploadError(result.message);
+      }
+    } catch (error) {
+      console.error("Erro no upload:", error);
+      
+      // Verificar se é erro de configuração do Firebase
+      if (error instanceof Error) {
+        if (error.message.includes('no-default-bucket')) {
+          setUploadError("Firebase Storage não configurado. Verifique as variáveis de ambiente.");
+        } else if (error.message.includes('Firebase: Configurações faltando')) {
+          setUploadError("Configuração do Firebase incompleta. Verifique o arquivo .env.local");
+        } else {
+          setUploadError(error.message);
+        }
+      } else {
+        setUploadError("Erro ao fazer upload da imagem");
+      }
+    } finally {
+      setUploadingImage(false);
+      // Limpar o input
+      event.target.value = '';
+    }
+  };
 
   const settingsSections = [
     {
@@ -155,7 +196,7 @@ export function SettingsModal({
           </div>
             <div className="flex justify-center w-full">
               {/* Sidebar */}
-              <div className="w-60 bg-zinc-800 min-h-[650px] p-4 border-r border-zinc-700 rounded-l-lg">
+              {/* <div className="w-60 bg-zinc-800 min-h-[650px] p-4 border-r border-zinc-700 rounded-l-lg">
                 <div className="space-y-6">
                   {settingsSections.map((section, sectionIndex) => (
                     <div key={sectionIndex}>
@@ -186,7 +227,7 @@ export function SettingsModal({
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Main Content */}
               <div className="flex-1 px-8 flex justify-center w-full py-8">
@@ -204,20 +245,27 @@ export function SettingsModal({
                   {/* Profile Section */}
                   <div className="bg-zinc-800 rounded-lg p-6 mb-6">
                     <div className="flex items-center gap-4 mb-6">
-                      <Avatar className="w-20 h-20">
-                        <AvatarImage
-                          src={userProfileData.image}
-                          className="transition-opacity duration-300"
-                        />
-                        <AvatarFallback className="text-lg bg-zinc-700 text-white">
-                          {userProfileData.displayName
-                            ?.split(" ")[0]?.[0]
-                            ?.toUpperCase() || "U"}
-                          {userProfileData.displayName
-                            ?.split(" ")[1]?.[0]
-                            ?.toUpperCase() ?? ""}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="relative">
+                        <Avatar className="w-20 h-20">
+                          <AvatarImage
+                            src={userProfileData.image}
+                            className="transition-opacity duration-300"
+                          />
+                          <AvatarFallback className="text-lg bg-zinc-700 text-white">
+                            {userProfileData.displayName
+                              ?.split(" ")[0]?.[0]
+                              ?.toUpperCase() || "U"}
+                            {userProfileData.displayName
+                              ?.split(" ")[1]?.[0]
+                              ?.toUpperCase() ?? ""}
+                          </AvatarFallback>
+                        </Avatar>
+                        {uploadingImage && (
+                          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                      </div>
                       <div className="flex-1">
                         <h2 className="text-lg font-semibold mb-1">
                           {userProfileData.displayName}
@@ -230,10 +278,32 @@ export function SettingsModal({
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           </div>
                         </div>
+                        {uploadError && (
+                          <p className="text-red-400 text-sm mt-1">{uploadError}</p>
+                        )}
                       </div>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Editar foto
-                      </Button>
+                      <div className="flex flex-col gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="avatar-upload"
+                          disabled={uploadingImage}
+                        />
+                        <label htmlFor="avatar-upload">
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                            disabled={uploadingImage}
+                            asChild
+                          >
+                            <span className="flex items-center gap-2">
+                              <Camera className="w-4 h-4" />
+                              {uploadingImage ? "Enviando..." : "Editar foto"}
+                            </span>
+                          </Button>
+                        </label>
+                      </div>
                     </div>
 
                     {/* Form Fields */}

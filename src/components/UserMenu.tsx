@@ -53,7 +53,7 @@ const UserMenu = () => {
       onClick: undefined,
     },
     {
-      label: "Activitys",
+      label: "Hábitos",
       href: "#",
       icon: <CalendarArrowUp size={16} />,
       onClick: () => setActivityModalOpen(true),

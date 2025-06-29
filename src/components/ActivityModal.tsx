@@ -145,7 +145,7 @@ export function ActivityModal({
                 <span className="text-white">Carregando...</span>
               </div>
             ) : habits.length === 0 ? (
-              <div className="text-center text-zinc-400 flex items-center justify-center min-h-[20rem]">
+              <div className="text-center text-zinc-400 flex items-center justify-center min-h-[35rem]">
                 Nenhum hábito cadastrado.
               </div>
             ) : (

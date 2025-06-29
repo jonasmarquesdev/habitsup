@@ -52,7 +52,7 @@ export function SummaryTable() {
             <div className="flex items-center gap-2 bg-zinc-800 border text-zinc-400 rounded-lg p-3 shadow-lg">
               <CalendarBlank size={24} className="text-zinc-400" />
               <span className="font-medium">
-                Nenhuma activity para hoje. Você pode criar novas!
+                Nenhumo hábito para hoje. Você pode criar novas!
               </span>
             </div>
           </div>

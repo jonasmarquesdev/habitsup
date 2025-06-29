@@ -94,7 +94,7 @@ const UserMenu = () => {
   }
 
   return (
-    <div className="flex h-full items-center justify-between">
+    <div className="flex h-full items-center justify-between select-none">
       <ActivityModal
         open={activityModalOpen}
         onOpenChange={setActivityModalOpen}
@@ -122,10 +122,10 @@ const UserMenu = () => {
 
         <SheetContent aria-describedby={undefined}>
           <SheetHeader>
-            <SheetTitle className="text-left">Menu</SheetTitle>
+            <SheetTitle className="text-left select-none">Menu</SheetTitle>
           </SheetHeader>
 
-          <div className="flex justify-between pt-6">
+          <div className="flex justify-between pt-6 select-none">
             <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarImage src={data?.user?.image as string | undefined} />
@@ -148,7 +148,7 @@ const UserMenu = () => {
             <Separator />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 select-none">
             {buttons.map((button, index) => (
               <Button
                 key={index}
@@ -198,7 +198,7 @@ const UserMenu = () => {
           {data?.user && (
             <Button
               variant="ghost"
-              className="w-full justify-start space-x-3 rounded-full text-sm font-normal"
+              className="w-full justify-start space-x-3 rounded-full text-sm font-normal select-none"
               onClick={() => logout()}
             >
               <LogOutIcon size={16} />

@@ -256,7 +256,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
               const isChecked = habitsInfo.completedHabits.includes(habit.id);
               
               return (
-                <li key={habit.id} className="flex gap-3">
+                <li key={habit.id} className="flex gap-3 select-none">
                   <Checkbox.Root
                     onCheckedChange={() => handleToggleHabit(habit.id)}
                     checked={isChecked}

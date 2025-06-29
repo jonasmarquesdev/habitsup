@@ -12,7 +12,7 @@ export function Header() {
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger
           type="button"
-          className="group focus:outline-none focus:ring-none border border-violet-500 font-semibold rounded-lg px-6 py-4 flex items-center gap-3 hover:border-violet-300 transition-colors"
+          className="group select-none focus:outline-none focus:ring-none border border-violet-500 font-semibold rounded-lg px-6 py-4 flex items-center gap-3 hover:border-violet-300 transition-colors"
         >
           <Plus size={20} className="group text-violet-500 group-hover:text-white" />
           Novo hábito

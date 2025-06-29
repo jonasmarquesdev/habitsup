@@ -239,7 +239,7 @@ export function ActivityModal({
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 min-w-[800px] max-w-[800px] min-h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-zinc-900 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <Dialog.Title className="text-xl font-bold">
+            <Dialog.Title className="text-xl select-none font-bold">
               Seus hábitos
             </Dialog.Title>
             <Dialog.Close asChild>
@@ -257,12 +257,12 @@ export function ActivityModal({
             onMouseDown={handleMouseDown}
           >
             {loading ? (
-              <div className="flex items-center justify-center min-h-[35rem] gap-4">
+              <div className="flex select-none items-center justify-center min-h-[35rem] gap-4">
                 <Loading />
                 <span className="text-white">Carregando...</span>
               </div>
             ) : habits.length === 0 ? (
-              <div className="text-center text-zinc-400 flex items-center justify-center min-h-[35rem]">
+              <div className="text-center select-none text-zinc-400 flex items-center justify-center min-h-[35rem]">
                 Nenhum hábito cadastrado.
               </div>
             ) : (
@@ -275,11 +275,11 @@ export function ActivityModal({
                   >
                     {/* Item Info */}
                     <div className="flex flex-col justify-center gap-2">
-                      <div className="flex items-center gap-2 font-semibold text-violet-400">
+                      <div className="flex items-center select-none gap-2 font-semibold text-violet-400">
                         <ListTodo className="w-5 h-5" />
                         {habit.title}
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-zinc-400 mt-1">
+                      <div className="flex items-center gap-1 select-none text-xs text-zinc-400 mt-1">
                         <CalendarDays className="w-4 h-4" />
                         <span>
                           Dias cadastrados:{" "}
@@ -328,7 +328,7 @@ export function ActivityModal({
                     )}
                   </li>
                 ))}
-                <li>
+                <li className="select-none">
                   <div className="w-full max-w-4xl mx-auto flex items-center justify-end pb-3">
                     <Dialog.Root
                       open={openNewHabit}

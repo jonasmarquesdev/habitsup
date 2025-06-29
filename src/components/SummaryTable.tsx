@@ -35,7 +35,7 @@ export function SummaryTable() {
 
   return (
     <div className="w-full flex justify-center items-center">
-      <div className="grid grid-rows-7 grid-flow-row gap-3">
+      <div className="grid grid-rows-7 grid-flow-row gap-3 select-none">
         {weekDays.map((weekDay, index) => (
           <div
             key={index}

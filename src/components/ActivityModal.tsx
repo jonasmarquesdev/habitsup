@@ -36,6 +36,9 @@ export function ActivityModal({
 
   // Funções para drag scroll
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Não permitir drag scroll quando o modal de novo hábito estiver aberto
+    if (openNewHabit) return;
+    
     // Buscar o viewport interno do ScrollArea
     const viewport = scrollAreaRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]"
@@ -45,6 +48,12 @@ export function ActivityModal({
     // Não iniciar drag se clicar em botões ou elementos interativos (mas permitir em li)
     const target = e.target as HTMLElement;
     if (target.closest("button") || target.closest('[role="toolbar"]')) {
+      return;
+    }
+    
+    // Verificar se o clique foi especificamente no modal de novo hábito
+    const dialogContent = target.closest('[data-radix-dialog-content]');
+    if (dialogContent && dialogContent !== scrollAreaRef.current?.closest('[data-radix-dialog-content]')) {
       return;
     }
 
@@ -174,6 +183,13 @@ export function ActivityModal({
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
+      
+      // Se o modal de novo hábito for aberto durante o drag, interromper
+      if (openNewHabit) {
+        setIsDragging(false);
+        document.body.style.cursor = "auto";
+        return;
+      }
 
       const viewport = scrollAreaRef.current?.querySelector(
         "[data-radix-scroll-area-viewport]"
@@ -198,7 +214,7 @@ export function ActivityModal({
         document.removeEventListener("mousemove", handleGlobalMouseMove);
       };
     }
-  }, [isDragging, startY, scrollTop]);
+  }, [isDragging, startY, scrollTop, openNewHabit]);
 
   // useEffect para controlar cursor e seleção durante o drag
   useEffect(() => {

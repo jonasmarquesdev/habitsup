@@ -2,9 +2,9 @@
 
 import { Button } from "./ui/button";
 import {
-  HomeIcon,
   LogOutIcon,
   Crown,
+  Trophy,
   Settings,
   CalendarArrowUp,
 } from "lucide-react";
@@ -49,27 +49,32 @@ const UserMenu = () => {
 
   const buttons = [
     {
-      label: "Início",
-      href: "/",
-      icon: <HomeIcon size={16} />,
+      label: "Ranking",
+      href: "#",
+      icon: <Trophy size={16} />,
       onClick: undefined,
+      disabled: true,
     },
     {
-      label: "Hábitos",
+      label: "Meus Hábitos",
       href: "#",
       icon: <CalendarArrowUp size={16} />,
       onClick: () => setActivityModalOpen(true),
+      disabled: false,
     },
     {
-      label: "Assinatura",
-      href: "/#",
+      label: "Assinatura Premium",
+      href: "#",
       icon: <Crown size={16} />,
+      onClick: undefined,
+      disabled: true,
     },
     {
       label: "Configurações",
       href: "#",
       icon: <Settings size={16} />,
       onClick: () => setSettingsModalOpen(true),
+      disabled: true,
     },
   ];
 
@@ -153,7 +158,16 @@ const UserMenu = () => {
                 onClick={button.onClick}
               >
                 {button.onClick ? (
-                  <Link href="#">
+                  <Link
+                    href="#"
+                    tabIndex={button.disabled === true ? -1 : 0}
+                    aria-disabled={button.disabled === true}
+                    style={
+                      button.disabled === true
+                        ? { pointerEvents: "none", opacity: 0.5 }
+                        : {}
+                    }
+                  >
                     {button.icon}
                     <span className="block">{button.label}</span>
                   </Link>
@@ -161,10 +175,10 @@ const UserMenu = () => {
                   <Link
                     href={button.href}
                     className=""
-                    tabIndex={button.label === "Assinatura" || button.label === "Configurações" ? -1 : 0}
-                    aria-disabled={button.label === "Assinatura" || button.label === "Configurações"}
+                    tabIndex={button.disabled === true ? -1 : 0}
+                    aria-disabled={button.disabled === true}
                     style={
-                      button.label === "Assinatura" || button.label === "Configurações"
+                      button.disabled === true
                         ? { pointerEvents: "none", opacity: 0.5 }
                         : {}
                     }

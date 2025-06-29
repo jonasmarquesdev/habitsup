@@ -23,12 +23,14 @@ import { useEffect, useState } from "react";
 import { User } from "@/interfaces/User";
 import { Skeleton } from "./ui/skeleton";
 import { ActivityModal } from "./ActivityModal";
+import { SettingsModal } from "./SettingsModal";
 
 const UserMenu = () => {
   const { getUsuario, logout, isAuthenticatedBoolean } = useAuth();
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
   const [activityModalOpen, setActivityModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticatedBoolean) return;
@@ -65,8 +67,9 @@ const UserMenu = () => {
     },
     {
       label: "Configurações",
-      href: "/settings",
+      href: "#",
       icon: <Settings size={16} />,
+      onClick: () => setSettingsModalOpen(true),
     },
   ];
 
@@ -90,6 +93,10 @@ const UserMenu = () => {
       <ActivityModal
         open={activityModalOpen}
         onOpenChange={setActivityModalOpen}
+      />
+      <SettingsModal
+        open={settingsModalOpen}
+        onOpenChange={setSettingsModalOpen}
       />
       <Sheet>
         <SheetTrigger asChild>

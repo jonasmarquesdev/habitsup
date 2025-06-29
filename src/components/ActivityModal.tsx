@@ -23,7 +23,7 @@ export function ActivityModal({
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const { reloadSummary } = useSummary();
-  
+
   // Estados para drag scroll
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -34,20 +34,22 @@ export function ActivityModal({
   // Funções para drag scroll
   const handleMouseDown = (e: React.MouseEvent) => {
     // Buscar o viewport interno do ScrollArea
-    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement;
+    const viewport = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLDivElement;
     if (!viewport) return;
-    
+
     // Não iniciar drag se clicar em botões ou elementos interativos (mas permitir em li)
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="toolbar"]')) {
+    if (target.closest("button") || target.closest('[role="toolbar"]')) {
       return;
     }
-    
+
     setIsDragging(true);
     setStartY(e.pageY);
     setScrollTop(viewport.scrollTop);
     setDragDistance(0);
-    document.body.style.cursor = 'grabbing';
+    document.body.style.cursor = "grabbing";
   };
 
   const fetchHabits = async () => {
@@ -78,13 +80,13 @@ export function ActivityModal({
     if (dragDistance > 5) {
       return;
     }
-    
+
     if (selectedHabitId === habitId) {
       setIsAnimatingOut(true);
       setTimeout(() => {
         setSelectedHabitId(null);
         setIsAnimatingOut(false);
-      }, 200); 
+      }, 200);
     } else {
       setSelectedHabitId(habitId);
       setIsAnimatingOut(false);
@@ -106,7 +108,7 @@ export function ActivityModal({
 
     setDeletingHabitId(habitToDelete.id);
     setConfirmDialogOpen(false);
-    
+
     try {
       const result = await deleteHabit(habitToDelete.id);
       if (result.success) {
@@ -138,15 +140,15 @@ export function ActivityModal({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('li') && !target.closest('[role="toolbar"]')) {
+      if (!target.closest("li") && !target.closest('[role="toolbar"]')) {
         hideSelectedHabit();
       }
     };
 
     if (open && selectedHabitId) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
       };
     }
   }, [open, selectedHabitId, hideSelectedHabit]);
@@ -155,8 +157,8 @@ export function ActivityModal({
   useEffect(() => {
     const handleGlobalMouseUp = () => {
       setIsDragging(false);
-      document.body.style.cursor = 'auto';
-      
+      document.body.style.cursor = "auto";
+
       // Reset da distância do drag após um pequeno delay para permitir que o clique seja processado
       setTimeout(() => {
         setDragDistance(0);
@@ -165,26 +167,28 @@ export function ActivityModal({
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
-      
-      const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement;
+
+      const viewport = scrollAreaRef.current?.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      ) as HTMLDivElement;
       if (!viewport) return;
-      
+
       e.preventDefault();
       const y = e.pageY;
       const distance = Math.abs(y - startY);
       setDragDistance(distance);
-      
+
       const walk = (y - startY) * 1.5; // Velocidade de scroll
       viewport.scrollTop = scrollTop - walk;
     };
 
     if (isDragging) {
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+
       return () => {
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
+        document.removeEventListener("mouseup", handleGlobalMouseUp);
+        document.removeEventListener("mousemove", handleGlobalMouseMove);
       };
     }
   }, [isDragging, startY, scrollTop]);
@@ -192,17 +196,17 @@ export function ActivityModal({
   // useEffect para controlar cursor e seleção durante o drag
   useEffect(() => {
     if (isDragging) {
-      document.body.style.userSelect = 'none';
-      document.body.style.cursor = 'grabbing';
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "grabbing";
     } else {
-      document.body.style.userSelect = 'auto';
-      document.body.style.cursor = 'auto';
+      document.body.style.userSelect = "auto";
+      document.body.style.cursor = "auto";
     }
-    
+
     // Cleanup quando o componente for desmontado
     return () => {
-      document.body.style.userSelect = 'auto';
-      document.body.style.cursor = 'auto';
+      document.body.style.userSelect = "auto";
+      document.body.style.cursor = "auto";
     };
   }, [isDragging]);
 
@@ -216,7 +220,7 @@ export function ActivityModal({
               Seus hábitos
             </Dialog.Title>
             <Dialog.Close asChild>
-              <button 
+              <button
                 className="rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-zinc-950 dark:focus:ring-zinc-300 p-1 hover:bg-zinc-800"
                 aria-label="Fechar"
               >
@@ -224,7 +228,7 @@ export function ActivityModal({
               </button>
             </Dialog.Close>
           </div>
-          <ScrollArea 
+          <ScrollArea
             ref={scrollAreaRef}
             className="h-[600px] w-full pr-6 pl-6 transition-all cursor-grab hover:cursor-grab"
             onMouseDown={handleMouseDown}
@@ -275,12 +279,13 @@ export function ActivityModal({
                     </div>
 
                     {/* ToolBar Menu */}
-                    {(selectedHabitId === habit.id || (isAnimatingOut && selectedHabitId === habit.id)) && (
+                    {(selectedHabitId === habit.id ||
+                      (isAnimatingOut && selectedHabitId === habit.id)) && (
                       <div
                         className={`p-1 z-10 absolute top-5 right-5 h-10 w-10 bg-zinc-900 border-zinc-800 rounded-lg flex items-center justify-center ${
-                          isAnimatingOut 
-                            ? 'animate-out slide-out-to-right-2 fade-out duration-200' 
-                            : 'animate-in slide-in-from-right-2 fade-in duration-200'
+                          isAnimatingOut
+                            ? "animate-out slide-out-to-right-2 fade-out duration-200"
+                            : "animate-in slide-in-from-right-2 fade-in duration-200"
                         }`}
                         role="toolbar"
                         aria-label="Ferramentas do hábito"
@@ -305,7 +310,7 @@ export function ActivityModal({
           </ScrollArea>
         </Dialog.Content>
       </Dialog.Portal>
-      
+
       {/* Dialog de confirmação de exclusão */}
       <Dialog.Root open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <Dialog.Portal>
@@ -318,34 +323,39 @@ export function ActivityModal({
                   Confirmar exclusão
                 </Dialog.Title>
               </div>
-              
+
               <Dialog.Description className="text-sm text-zinc-600 dark:text-zinc-400">
-                Tem certeza que deseja excluir o hábito &ldquo;{habitToDelete?.title}&rdquo;?
+                Tem certeza que deseja excluir o hábito &ldquo;
+                {habitToDelete?.title}&rdquo;?
                 <br />
-                <span className="text-red-500 font-medium">Esta ação não pode ser desfeita.</span>
+                <span className="text-red-500 font-medium">
+                  Esta ação não pode ser desfeita.
+                </span>
               </Dialog.Description>
 
               <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 space-y-2 space-y-reverse sm:space-y-0">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleCancelDelete}
                   className="w-full sm:w-auto"
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   onClick={handleConfirmDelete}
                   disabled={deletingHabitId === habitToDelete?.id}
                   className="w-full sm:w-auto bg-red-600/70"
                 >
-                  {deletingHabitId === habitToDelete?.id ? "Excluindo..." : "Excluir"}
+                  {deletingHabitId === habitToDelete?.id
+                    ? "Excluindo..."
+                    : "Excluir"}
                 </Button>
               </div>
             </div>
 
             <Dialog.Close asChild>
-              <button 
+              <button
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-zinc-950 dark:focus:ring-zinc-300"
                 aria-label="Fechar"
               >

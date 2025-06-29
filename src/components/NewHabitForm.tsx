@@ -41,9 +41,9 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
     });
 
     showToastPromise(habitPromise, {
-      loading: "Salvando activity...",
-      success: "Activity criada com sucesso!",
-      error: "Erro ao criar activity.",
+      loading: "Salvando hábito...",
+      success: "Hábito criado com sucesso!",
+      error: "Erro ao criar hábito.",
     });
 
     try {

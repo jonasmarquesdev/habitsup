@@ -6,7 +6,7 @@ import clsx from "clsx";
 import dayjs from "../lib/dayjs";
 import { HabitList } from "./HabitList";
 import { useState } from "react";
-import { WarningCircle, CheckCircle } from "phosphor-react";
+import { WarningCircle } from "phosphor-react";
 import type { HabitDay } from "@/interfaces/HabitDay";
 import { Orb } from "./Orb";
 
@@ -18,8 +18,8 @@ export function HabitDayBlock({
   const [completed, setCompleted] = useState(defaultCompleted);
 
   // Normalize date to UTC to avoid timezone issues
-  const normalizedDate = dayjs(date).utc().startOf('day');
-  const isDateInPast = normalizedDate.isBefore(dayjs().utc().startOf('day'));
+  const normalizedDate = dayjs(date).utc().startOf("day");
+  const isDateInPast = normalizedDate.isBefore(dayjs().utc().startOf("day"));
 
   const completedPercentage =
     amount > 0 ? Math.round((completed / amount) * 100) : 0;
@@ -54,42 +54,53 @@ export function HabitDayBlock({
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content className="min-w-[340px] p-6 bg-zinc-900 rounded-2xl flex flex-col transition-all">
-          <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
-          <span className="mt-1 font-extrabold leading-tight text-3xl">
-            {dayAndMonth}
-          </span>
+        <Popover.Content className="min-w-[340px] max-h-[480px] p-6 bg-zinc-900 rounded-2xl flex flex-col">
+          <div className="flex-shrink-0 flex flex-col">
+            <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
+            <span className="mt-1 font-extrabold leading-tight text-3xl">
+              {dayAndMonth}
+            </span>
 
-          <ProgressBar progress={completedPercentage} />
+            <ProgressBar progress={completedPercentage} />
+          </div>
 
-          {isDateInPast && (
-            <div className="flex items-center justify-center mt-6 gap-1">
-              <WarningCircle size={20} className="text-red-800" />
-              <span className="text-red-800">
-                Não é possível modificar hábito de dias anteriores
-              </span>
+          <div className="flex-shrink-0">
+            {isDateInPast && (
+              <div className="flex items-center justify-center mt-6 gap-1">
+                <WarningCircle size={20} className="text-red-800" />
+                <span className="text-red-800">
+                  Não é possível modificar hábito de dias anteriores
+                </span>
+              </div>
+            )}
+
+            {/* {!isDateInPast && completed === amount && amount > 0 && (
+              <div className="flex items-center justify-center mt-6 gap-1">
+                <CheckCircle size={20} className="text-green-500" />
+                <span className="text-green-500">
+                  Você concluiu todas hábitos de hoje!
+                </span>
+              </div>
+            )} */}
+
+            {!isDateInPast && amount === 0 && (
+              <div className="flex items-center justify-center mt-6 gap-1">
+                <WarningCircle size={20} className="text-yellow-500" />
+                <span className="text-yellow-500">
+                  Nenhum hábito para hoje. Você pode criar novos!
+                </span>
+              </div>
+            )}
+          </div>
+
+          {amount !== 0 && (
+            <div className="flex-1 min-h-0">
+              <HabitList
+                date={date}
+                onCompletedChanged={handleCompletedChanged}
+              />
             </div>
           )}
-
-          {!isDateInPast && completed === amount && amount > 0 && (
-            <div className="flex items-center justify-center mt-6 gap-1">
-              <CheckCircle size={20} className="text-green-500" />
-              <span className="text-green-500">
-                Você concluiu todas hábitos de hoje!
-              </span>
-            </div>
-          )}
-
-          {!isDateInPast && amount === 0 && (
-            <div className="flex items-center justify-center mt-6 gap-1">
-              <WarningCircle size={20} className="text-yellow-500" />
-              <span className="text-yellow-500">
-                Nenhum hábito para hoje. Você pode criar novos!
-              </span>
-            </div>
-          )}
-
-          <HabitList date={date} onCompletedChanged={handleCompletedChanged} />
 
           <Popover.Arrow height={8} width={16} className="fill-zinc-900" />
         </Popover.Content>

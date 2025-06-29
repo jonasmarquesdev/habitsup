@@ -19,6 +19,7 @@ export async function getHabits() {
     const habits = await prisma.habit.findMany({
       where: { userId: userResult.user.id },
       include: { weekDays: true },
+      orderBy: { title: 'asc' },
     });
 
     return { success: true, habits };

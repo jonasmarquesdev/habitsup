@@ -66,7 +66,7 @@ export function HabitDayBlock({
             <div className="flex items-center justify-center mt-6 gap-1">
               <WarningCircle size={20} className="text-red-800" />
               <span className="text-red-800">
-                Não é possível modificar activity de dias anteriores
+                Não é possível modificar hábito de dias anteriores
               </span>
             </div>
           )}
@@ -75,7 +75,7 @@ export function HabitDayBlock({
             <div className="flex items-center justify-center mt-6 gap-1">
               <CheckCircle size={20} className="text-green-500" />
               <span className="text-green-500">
-                Você concluiu todas activitys de hoje!
+                Você concluiu todas hábitos de hoje!
               </span>
             </div>
           )}
@@ -84,7 +84,7 @@ export function HabitDayBlock({
             <div className="flex items-center justify-center mt-6 gap-1">
               <WarningCircle size={20} className="text-yellow-500" />
               <span className="text-yellow-500">
-                Nenhuma activity para hoje. Você pode criar novas!
+                Nenhum hábito para hoje. Você pode criar novos!
               </span>
             </div>
           )}

@@ -130,8 +130,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     
     // Only access localStorage on the client side
     if (typeof window !== "undefined") {
-      const sysActivityUser = crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36);
-      localStorage.setItem("sys-activity-user", sysActivityUser);
+      const sysHabitUpUser = crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36);
+      localStorage.setItem("sys-habitup-user", sysHabitUpUser);
     }
     
     router.push("/login");

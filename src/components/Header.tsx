@@ -15,7 +15,7 @@ export function Header() {
           className="border border-violet-500 font-semibold rounded-lg px-6 py-4 flex items-center gap-3 hover:border-violet-300 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-600 focus:ring-offset-2 focus:ring-offset-background"
         >
           <Plus size={20} className="text-violet-500" />
-          Nova activity
+          Novo hábito
         </Dialog.Trigger>
 
         <Dialog.Portal>
@@ -27,7 +27,7 @@ export function Header() {
             </Dialog.Close>
 
             <Dialog.Title className="text-3xl leading-tight font-extrabold">
-              Criar activity
+              Criar hábito
             </Dialog.Title>
             
             <NewHabitForm onSuccess={() => setOpen(false)} />

@@ -82,12 +82,12 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
           completedHabits.length > 0
         ) {
           showToastMessage({
-            message: "Parabéns! Você completou todas as activity do dia!",
+            message: "Parabéns! Você completou todas os hábitos do dia!",
             type: "success",
           });
         } else {
           showToastMessage({
-            message: "Activity atualizada com sucesso!",
+            message: "Hábito atualizada com sucesso!",
             type: "success",
           });
         }
@@ -97,7 +97,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
     } catch (error) {
       // Rollback
       showToastMessage({
-        message: `Erro ao atualizar activity: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
+        message: `Erro ao atualizar hábito: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
         type: "error",
       });
       setHabitsInfo(prevHabitsInfo);

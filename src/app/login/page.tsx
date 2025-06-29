@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsReturningUser(!!localStorage.getItem("sys-activity-user"));
+      setIsReturningUser(!!localStorage.getItem("sys-habitup-user"));
     }
   }, []);
 

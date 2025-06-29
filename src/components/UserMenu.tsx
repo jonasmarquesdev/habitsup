@@ -154,10 +154,10 @@ const UserMenu = () => {
                   <Link
                     href={button.href}
                     className=""
-                    tabIndex={button.label === "Assinatura" ? -1 : 0}
-                    aria-disabled={button.label === "Assinatura"}
+                    tabIndex={button.label === "Assinatura" || button.label === "Configurações" ? -1 : 0}
+                    aria-disabled={button.label === "Assinatura" || button.label === "Configurações"}
                     style={
-                      button.label === "Assinatura"
+                      button.label === "Assinatura" || button.label === "Configurações"
                         ? { pointerEvents: "none", opacity: 0.5 }
                         : {}
                     }

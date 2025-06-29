@@ -28,6 +28,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
   const [habitsInfo, setHabitsInfo] = useState<HabitListInfo | undefined>(
     undefined
   );
+  const [loadingHabits, setLoadingHabits] = useState<Set<string>>(new Set());
   const { reloadSummary } = useSummary();
 
   // Estados para drag scroll
@@ -88,7 +89,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
-      
+
       const viewport = scrollAreaRef.current?.querySelector(
         "[data-radix-scroll-area-viewport]"
       ) as HTMLDivElement;
@@ -139,6 +140,14 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
       return;
     }
 
+    // Verificar se este hábito já está sendo processado
+    if (loadingHabits.has(habitId)) {
+      return;
+    }
+
+    // Adicionar o hábito ao estado de loading
+    setLoadingHabits(prev => new Set(prev).add(habitId));
+
     // Salve o estado anterior
     const prevHabitsInfo = { ...habitsInfo };
 
@@ -155,6 +164,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
       completedHabits = [...habitsInfo.completedHabits, habitId];
     }
 
+    // Aplicar o optimistic update imediatamente
     setHabitsInfo({
       possibleHabits: habitsInfo.possibleHabits,
       completedHabits,
@@ -166,7 +176,8 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
       const result = await toggleHabit(habitId);
 
       if (result.success) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        // Diminuir o delay para melhorar a responsividade
+        await new Promise((resolve) => setTimeout(resolve, 100));
         reloadSummary();
 
         if (
@@ -188,7 +199,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
         throw new Error(result.message);
       }
     } catch (error) {
-      // Rollback
+      // Rollback em caso de erro
       showToastMessage({
         message: `Erro ao atualizar hábito: ${
           error instanceof Error ? error.message : "Erro desconhecido"
@@ -197,6 +208,13 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
       });
       setHabitsInfo(prevHabitsInfo);
       onCompletedChanged(prevHabitsInfo.completedHabits.length);
+    } finally {
+      // Remover o hábito do estado de loading
+      setLoadingHabits(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(habitId);
+        return newSet;
+      });
     }
   }
 
@@ -233,25 +251,40 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
           onMouseDown={handleMouseDown}
         >
           <ul className="p-1 flex flex-col gap-3">
-            {habitsInfo.possibleHabits.map((habit) => (
-              <li key={habit.id}>
-                <Checkbox.Root
-                  onCheckedChange={() => handleToggleHabit(habit.id)}
-                  checked={habitsInfo.completedHabits.includes(habit.id)}
-                  disabled={isDateInPast}
-                  className="flex items-center gap-3 group disabled:cursor-not-allowed"
-                >
-                  <div className="h-8 w-8 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 rounded-lg group-data-[state=checked]:bg-green-500 transition-colors group-focus:ring-2 group-focus:ring-violet-500 group-focus:ring-offset-2 group-focus:ring-offset-background">
-                    <Checkbox.Indicator>
-                      <Check size={20} className="text-white" />
-                    </Checkbox.Indicator>
-                  </div>
-                  <span className="font-semibold text-xl text-white leading-tight group-data-[state=checked]:line-through group-data-[state=checked]:text-zinc-400">
+            {habitsInfo.possibleHabits.map((habit) => {
+              const isLoading = loadingHabits.has(habit.id);
+              const isChecked = habitsInfo.completedHabits.includes(habit.id);
+              
+              return (
+                <li key={habit.id} className="flex gap-3">
+                  <Checkbox.Root
+                    onCheckedChange={() => handleToggleHabit(habit.id)}
+                    checked={isChecked}
+                    disabled={isDateInPast || isLoading}
+                    className="flex items-center gap-3 group disabled:cursor-not-allowed"
+                  >
+                    <div className={`h-8 w-8 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 rounded-lg transition-all duration-300 ${
+                      isLoading 
+                        ? 'opacity-60 animate-pulse' 
+                        : 'group-data-[state=checked]:bg-violet-500'
+                    } group-focus:ring-2 group-focus:ring-violet-500 group-focus:ring-offset-2 group-focus:ring-offset-background`}>
+                      <Checkbox.Indicator>
+                        <Check size={20} className="text-white" />
+                      </Checkbox.Indicator>
+                    </div>
+                  </Checkbox.Root>
+                  <span className={`font-semibold text-xl leading-tight transition-all duration-300 ${
+                    isLoading 
+                      ? 'text-zinc-400 opacity-60' 
+                      : isChecked 
+                        ? 'text-zinc-400 line-through' 
+                        : 'text-white'
+                  }`}>
                     {habit.title}
                   </span>
-                </Checkbox.Root>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </ScrollArea>
       )}

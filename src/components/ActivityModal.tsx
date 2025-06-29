@@ -60,7 +60,11 @@ export function ActivityModal({
     try {
       const result = await getHabits();
       if (result.success && result.habits) {
-        setHabits(result.habits as Habit[]);
+        // Ordenar alfabeticamente (A a Z) no frontend também
+        const sortedHabits = (result.habits as Habit[]).sort((a, b) => 
+          a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' })
+        );
+        setHabits(sortedHabits);
       } else {
         console.error("Erro ao buscar hábitos:", result.message);
         setHabits([]);

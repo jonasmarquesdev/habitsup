@@ -5,6 +5,7 @@ import { z } from "zod";
 import { compare, hash } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import dayjs from "@/lib/dayjs";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "your-secret-key"
@@ -72,6 +73,9 @@ export async function loginUser(email: string, password: string) {
 
     const token = await createToken({ id: user.id, email: user.email });
     
+    // Garantir que os registros do dia atual existem
+    await ensureTodayRecords(user.id);
+    
     // Set cookie - usando uma abordagem mais compatível com Vercel
     try {
       (await cookies()).set("auth-token", token, {
@@ -129,6 +133,9 @@ export async function getCurrentUser() {
     if (!user) {
       return { success: false, message: "Usuário não encontrado" };
     }
+
+    // Garantir que os registros do dia atual existem
+    await ensureTodayRecords(user.id);
 
     return {
       success: true,
@@ -212,4 +219,65 @@ export async function logoutUser() {
   } catch {
     return { success: true }; // Mesmo se falhar, consideramos logout bem-sucedido
   }
+}
+
+// Função para garantir que o dia atual existe e tem os registros de availability
+export async function ensureTodayRecords(userId: string) {
+  const today = dayjs().utc().startOf("day").toDate();
+
+  // Verificar se o dia já existe
+  let day = await prisma.day.findUnique({
+    where: { date_userId: { date: today, userId } },
+  });
+
+  // Se o dia não existe, criar
+  if (!day) {
+    day = await prisma.day.create({
+      data: { date: today, userId },
+    });
+  }
+
+  // Buscar todos os hábitos ativos do usuário
+  const userHabits = await prisma.habit.findMany({
+    where: { 
+      userId,
+      created_at: { lte: today } // Só hábitos criados até hoje
+    },
+    include: { weekDays: true },
+  });
+
+  const todayWeekDay = dayjs(today).utc().get('day');
+
+  // Filtrar hábitos que devem estar disponíveis hoje
+  const habitsForToday = userHabits.filter(habit => 
+    habit.weekDays.some(wd => wd.week_day === todayWeekDay)
+  );
+
+  if (habitsForToday.length > 0) {
+    // Verificar quais já têm registros de availability para hoje
+    const existingAvailability = await prisma.dailyHabitAvailability.findMany({
+      where: {
+        day_id: day.id,
+        habit_id: { in: habitsForToday.map(h => h.id) }
+      }
+    });
+
+    const existingHabitIds = new Set(existingAvailability.map(ea => ea.habit_id));
+
+    // Criar registros para hábitos que ainda não têm availability hoje
+    const newAvailabilityRecords = habitsForToday
+      .filter(habit => !existingHabitIds.has(habit.id))
+      .map(habit => ({
+        day_id: day.id,
+        habit_id: habit.id
+      }));
+
+    if (newAvailabilityRecords.length > 0) {
+      await prisma.dailyHabitAvailability.createMany({
+        data: newAvailabilityRecords
+      });
+    }
+  }
+
+  return day;
 }

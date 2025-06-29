@@ -129,7 +129,8 @@ export async function createHabit(title: string, weekDays: number[]) {
 
     if (availabilityRecords.length > 0) {
       await prisma.dailyHabitAvailability.createMany({
-        data: availabilityRecords
+        data: availabilityRecords,
+        skipDuplicates: true // Evita erros se já existirem registros
       });
     }
 
@@ -281,5 +282,73 @@ export async function deleteHabit(habitId: string) {
   } catch (error) {
     console.error("Erro ao excluir hábito:", error);
     return { success: false, message: "Erro ao excluir hábito" };
+  }
+}
+
+export async function syncAllDailyHabitAvailability() {
+  try {
+    const userResult = await getCurrentUser();
+    if (!userResult.success) {
+      return { success: false, message: "Usuário não autenticado" };
+    }
+
+    if (!userResult.user) {
+      return { success: false, message: "Usuário não autenticado" };
+    }
+
+    const userId = userResult.user.id;
+    const today = dayjs().utc().startOf("day").toDate();
+
+    // Buscar todos os hábitos do usuário
+    const userHabits = await prisma.habit.findMany({
+      where: { userId },
+      include: { weekDays: true },
+    });
+
+    // Buscar todos os dias do usuário a partir de hoje
+    const existingDays = await prisma.day.findMany({
+      where: { 
+        userId,
+        date: { gte: today }
+      }
+    });
+
+    // Criar todos os registros de availability necessários
+    const allAvailabilityRecords = [];
+
+    for (const habit of userHabits) {
+      const habitWeekDays = habit.weekDays.map(wd => wd.week_day);
+      
+      for (const day of existingDays) {
+        // Só criar se o hábito foi criado antes ou no mesmo dia
+        if (habit.created_at <= day.date) {
+          const dayWeekDay = dayjs(day.date).utc().get('day');
+          
+          if (habitWeekDays.includes(dayWeekDay)) {
+            allAvailabilityRecords.push({
+              day_id: day.id,
+              habit_id: habit.id
+            });
+          }
+        }
+      }
+    }
+
+    if (allAvailabilityRecords.length > 0) {
+      await prisma.dailyHabitAvailability.createMany({
+        data: allAvailabilityRecords,
+        skipDuplicates: true
+      });
+    }
+
+    return { 
+      success: true, 
+      message: `Sincronizados ${allAvailabilityRecords.length} registros de availability` 
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: `Erro ao sincronizar availability: ${error}` 
+    };
   }
 }

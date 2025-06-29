@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { ScrollArea } from "./ui/scroll-area";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Habit } from "@/interfaces/Habit";
 import { CalendarDays, ListTodo, Trash2, AlertTriangle, X } from "lucide-react";
 import { getHabits, deleteHabit } from "@/lib/actions/habits";
@@ -23,6 +23,32 @@ export function ActivityModal({
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const { reloadSummary } = useSummary();
+  
+  // Estados para drag scroll
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [dragDistance, setDragDistance] = useState(0);
+
+  // Funções para drag scroll
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Buscar o viewport interno do ScrollArea
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement;
+    if (!viewport) return;
+    
+    // Não iniciar drag se clicar em botões ou elementos interativos (mas permitir em li)
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="toolbar"]')) {
+      return;
+    }
+    
+    setIsDragging(true);
+    setStartY(e.pageY);
+    setScrollTop(viewport.scrollTop);
+    setDragDistance(0);
+    document.body.style.cursor = 'grabbing';
+  };
 
   const fetchHabits = async () => {
     setLoading(true);
@@ -48,6 +74,11 @@ export function ActivityModal({
   };
 
   const handleHabitClick = (habitId: string) => {
+    // Se foi um drag (distância > 5px), não tratar como clique
+    if (dragDistance > 5) {
+      return;
+    }
+    
     if (selectedHabitId === habitId) {
       setIsAnimatingOut(true);
       setTimeout(() => {
@@ -120,6 +151,61 @@ export function ActivityModal({
     }
   }, [open, selectedHabitId, hideSelectedHabit]);
 
+  // useEffect para eventos globais de drag scroll
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+      document.body.style.cursor = 'auto';
+      
+      // Reset da distância do drag após um pequeno delay para permitir que o clique seja processado
+      setTimeout(() => {
+        setDragDistance(0);
+      }, 100);
+    };
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement;
+      if (!viewport) return;
+      
+      e.preventDefault();
+      const y = e.pageY;
+      const distance = Math.abs(y - startY);
+      setDragDistance(distance);
+      
+      const walk = (y - startY) * 1.5; // Velocidade de scroll
+      viewport.scrollTop = scrollTop - walk;
+    };
+
+    if (isDragging) {
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      
+      return () => {
+        document.removeEventListener('mouseup', handleGlobalMouseUp);
+        document.removeEventListener('mousemove', handleGlobalMouseMove);
+      };
+    }
+  }, [isDragging, startY, scrollTop]);
+
+  // useEffect para controlar cursor e seleção durante o drag
+  useEffect(() => {
+    if (isDragging) {
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
+    } else {
+      document.body.style.userSelect = 'auto';
+      document.body.style.cursor = 'auto';
+    }
+    
+    // Cleanup quando o componente for desmontado
+    return () => {
+      document.body.style.userSelect = 'auto';
+      document.body.style.cursor = 'auto';
+    };
+  }, [isDragging]);
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -138,7 +224,11 @@ export function ActivityModal({
               </button>
             </Dialog.Close>
           </div>
-          <ScrollArea className="h-[600px] w-full pr-6 pl-6 transition-all">
+          <ScrollArea 
+            ref={scrollAreaRef}
+            className="h-[600px] w-full pr-6 pl-6 transition-all cursor-grab hover:cursor-grab"
+            onMouseDown={handleMouseDown}
+          >
             {loading ? (
               <div className="flex items-center justify-center min-h-[35rem] gap-4">
                 <Loading />

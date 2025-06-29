@@ -7,6 +7,8 @@ import { getHabits, deleteHabit } from "@/lib/actions/habits";
 import { Button } from "./ui/button";
 import { useSummary } from "@/contexts/SummaryContext";
 import Loading from "./Loading";
+import { Plus } from "phosphor-react";
+import { NewHabitForm } from "./NewHabitForm";
 
 export function ActivityModal({
   open,
@@ -17,6 +19,7 @@ export function ActivityModal({
 }) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openNewHabit, setOpenNewHabit] = useState(false);
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
@@ -305,6 +308,49 @@ export function ActivityModal({
                     )}
                   </li>
                 ))}
+                <li>
+                  <div className="w-full max-w-4xl mx-auto flex items-center justify-end pb-3">
+                    <Dialog.Root
+                      open={openNewHabit}
+                      onOpenChange={setOpenNewHabit}
+                    >
+                      <Dialog.Trigger
+                        type="button"
+                        className="group border border-violet-500 font-semibold rounded-lg px-6 py-4 w-full flex items-center justify-center gap-3 hover:border-violet-300 hover:bg-zinc-900 transition-colors focus:outline-none focus:ring-none"
+                      >
+                        <Plus
+                          size={20}
+                          className="text-violet-500 group-hover:text-white transition-colors"
+                        />
+                        <span className="text-white transition-colors">
+                          Novo hábito
+                        </span>
+                      </Dialog.Trigger>
+
+                      <Dialog.Portal>
+                        <Dialog.Overlay className="w-screen h-screen bg-black/80 fixed inset-0 z-[60]" />
+
+                        <Dialog.Content className="fixed p-10 bg-zinc-900 rounded-2xl w-full max-w-md top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[70] shadow-2xl border border-zinc-700">
+                          <Dialog.Close className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-200 transition-colors">
+                            <X size={24} aria-label="close" />
+                          </Dialog.Close>
+
+                          <Dialog.Title className="text-3xl leading-tight font-extrabold">
+                            Criar hábito
+                          </Dialog.Title>
+
+                          <NewHabitForm
+                            onSuccess={() => {
+                              setOpenNewHabit(false);
+                              fetchHabits(); // Recarregar a lista de hábitos
+                              reloadSummary(); // Recarregar o resumo também
+                            }}
+                          />
+                        </Dialog.Content>
+                      </Dialog.Portal>
+                    </Dialog.Root>
+                  </div>
+                </li>
               </ul>
             )}
           </ScrollArea>

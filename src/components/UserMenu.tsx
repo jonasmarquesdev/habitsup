@@ -16,19 +16,21 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { useAuth } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
 import { User } from "@/interfaces/User";
 import { Skeleton } from "./ui/skeleton";
 import { ActivityModal } from "./ActivityModal";
+import { SettingsModal } from "./SettingsModal";
 
 const UserMenu = () => {
   const { getUsuario, logout, isAuthenticatedBoolean } = useAuth();
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
   const [activityModalOpen, setActivityModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticatedBoolean) return;
@@ -65,8 +67,9 @@ const UserMenu = () => {
     },
     {
       label: "Configurações",
-      href: "/#",
+      href: "#",
       icon: <Settings size={16} />,
+      onClick: () => setSettingsModalOpen(true),
     },
   ];
 
@@ -91,6 +94,10 @@ const UserMenu = () => {
         open={activityModalOpen}
         onOpenChange={setActivityModalOpen}
       />
+      <SettingsModal
+        open={settingsModalOpen}
+        onOpenChange={setSettingsModalOpen}
+      />
       <Sheet>
         <SheetTrigger asChild>
           <Button
@@ -99,7 +106,7 @@ const UserMenu = () => {
           >
             <p>{data?.user?.name}</p>
             <Avatar>
-              {/* <AvatarImage src={data?.user?.image as string | undefined} /> */}
+              <AvatarImage src={data?.user?.image as string | undefined} />
               <AvatarFallback>
                 {data?.user?.name?.split(" ")[0]?.[0]}
                 {data?.user?.name?.split(" ")[1]?.[0] ?? ""}
@@ -116,7 +123,7 @@ const UserMenu = () => {
           <div className="flex justify-between pt-6">
             <div className="flex items-center gap-3">
               <Avatar>
-                {/* <AvatarImage src={data?.user?.image as string | undefined} /> */}
+                <AvatarImage src={data?.user?.image as string | undefined} />
                 <AvatarFallback>
                   {data?.user?.name?.split(" ")[0]?.[0]}
                   {data?.user?.name?.split(" ")[1]?.[0] ?? ""}

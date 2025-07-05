@@ -34,7 +34,7 @@ export function HabitDayBlock({
     <Popover.Root>
       <Popover.Trigger
         className={clsx(
-          "w-10 h-10 border-2 rounded-lg select-none transition-colors relative flex items-center justify-center",
+          "w-8 h-8 sm:w-10 sm:h-10 border-2 rounded-lg select-none transition-colors relative flex items-center justify-center habit-day-block",
           {
             "bg-zinc-900 border-zinc-800": completedPercentage === 0,
             "bg-violet-900 border-violet-700":
@@ -54,7 +54,7 @@ export function HabitDayBlock({
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content className="min-w-[340px] max-h-[480px] p-6 bg-zinc-900 rounded-2xl flex flex-col">
+        <Popover.Content className="min-w-[340px] max-h-[480px] p-6 bg-zinc-900 rounded-2xl flex flex-col z-50">
           <div className="flex-shrink-0 flex flex-col select-none">
             <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
             <span className="mt-1 font-extrabold leading-tight text-3xl">

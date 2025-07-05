@@ -139,7 +139,7 @@ export function SummaryTable() {
             variant="outline"
             size="sm"
             onClick={() => setViewMode('year')}
-            className={`${viewMode === 'year' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm`}
+            className={`${viewMode === 'year' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm font-medium`}
           >
             Ano
           </Button>
@@ -147,7 +147,7 @@ export function SummaryTable() {
             variant="outline"
             size="sm"
             onClick={() => setViewMode('month')}
-            className={`${viewMode === 'month' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm`}
+            className={`${viewMode === 'month' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm font-medium`}
           >
             Mês
           </Button>
@@ -221,7 +221,7 @@ export function SummaryTable() {
           <div className="w-full max-w-full overflow-hidden">
             <div className="flex items-start">
               {/* Labels dos dias da semana - fixas na esquerda */}
-              <div className="flex-shrink-0 grid grid-rows-7 grid-flow-row gap-3 select-none mr-3 sticky left-0 z-10 bg-zinc-950">
+              <div className="flex-shrink-0 grid grid-rows-7 grid-flow-row gap-3 select-none mr-3 sticky left-0 z-10 bg-zinc-950 py-3">
                 {weekDays.map((weekDay, index) => (
                   <div
                     key={index}
@@ -235,7 +235,7 @@ export function SummaryTable() {
               {/* Área com scroll horizontal */}
               <div 
                 ref={scrollContainerRef}
-                className="flex-1 overflow-x-auto scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-700"
+                className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-700 py-3"
               >
                 <div className="grid grid-rows-7 grid-flow-col gap-3 relative z-0 min-w-max">
                   {summary.length === 0 && (

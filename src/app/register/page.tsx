@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import Loading from "@/components/Loading";
 import { useAuth } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -10,7 +12,28 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const { register } = useAuth();
+  const { register, isAuthenticatedBoolean, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticatedBoolean) {
+      router.push("/");
+    }
+  }, [isAuthenticatedBoolean, router]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex justify-center items-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-violet-900">
+        <Loading />
+      </div>
+    );
+  }
+
+  // If user is authenticated, don't show register page
+  if (isAuthenticatedBoolean) {
+    return null;
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

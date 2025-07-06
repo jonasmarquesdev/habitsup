@@ -109,7 +109,7 @@ const UserMenu = () => {
             variant="outline"
             className="bg-transparent flex items-center gap-4 border-none"
           >
-            <p>{data?.user?.name}</p>
+            <p className="hidden lg:block">{data?.user?.name}</p>
             <Avatar>
               <AvatarImage src={data?.user?.image as string | undefined} />
               <AvatarFallback>

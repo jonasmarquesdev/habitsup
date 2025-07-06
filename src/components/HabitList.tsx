@@ -256,7 +256,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
               const isChecked = habitsInfo.completedHabits.includes(habit.id);
               
               return (
-                <li key={habit.id} className="flex gap-3 select-none">
+                <li key={habit.id} className="flex items-center gap-3 select-none">
                   <Checkbox.Root
                     onCheckedChange={() => handleToggleHabit(habit.id)}
                     checked={isChecked}
@@ -273,7 +273,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
                       </Checkbox.Indicator>
                     </div>
                   </Checkbox.Root>
-                  <span className={`font-semibold text-xl leading-tight transition-all duration-300 ${
+                  <span className={`font-semibold sm:text-sm md:text-lg lg:text-xl leading-tight transition-all duration-300 ${
                     isLoading 
                       ? 'text-zinc-400 opacity-60' 
                       : isChecked 

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const SettingsPage = () => {
-  const { getUsuario, isAuthenticatedBoolean } = useAuth();
+  const { getUsuario, isAuthenticatedBoolean, loading: authLoading } = useAuth();
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +25,8 @@ const SettingsPage = () => {
     fetchUser();
   }, [getUsuario, isAuthenticatedBoolean]);
 
-  if (loading) {
+  // Show loading while checking authentication
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="flex justify-center w-full max-w-7xl px-6">

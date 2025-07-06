@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
+import Loading from "@/components/Loading";
 import { useAuth } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,13 +12,31 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isReturningUser, setIsReturningUser] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticatedBoolean, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    if (isAuthenticatedBoolean) {
+      router.push("/");
+    }
     if (typeof window !== "undefined") {
       setIsReturningUser(!!localStorage.getItem("sys-habitup-user"));
     }
-  }, []);
+  }, [isAuthenticatedBoolean, router]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex justify-center items-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-violet-900">
+        <Loading />
+      </div>
+    );
+  }
+
+  // If user is authenticated, don't show login page
+  if (isAuthenticatedBoolean) {
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +45,14 @@ export default function LoginPage() {
     try {
       await login(email, password);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao conectar com o servidor";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao conectar com o servidor";
       setError(errorMessage);
     }
   };
 
   return (
-    <div className="h-screen w-screen flex justify-center items-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-violet-900 text-foreground">
+    <div className="h-screen w-screen flex justify-center items-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-violet-900 text-foreground overflow-hidden">
       <div className="w-full max-w-md px-8 py-12 rounded-3xl shadow-2xl border border-zinc-800 bg-zinc-900/60 flex flex-col gap-8 items-center justify-center backdrop-blur-md">
         <Logo />
         <h2 className="text-2xl font-bold text-center">
@@ -72,12 +93,7 @@ export default function LoginPage() {
               aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
             >
               {showPassword ? (
-                <svg
-                  width="22"
-                  height="22"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
                   <path
                     stroke="currentColor"
                     strokeWidth="2"
@@ -85,12 +101,7 @@ export default function LoginPage() {
                   />
                 </svg>
               ) : (
-                <svg
-                  width="22"
-                  height="22"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
                   <path
                     stroke="currentColor"
                     strokeWidth="2"

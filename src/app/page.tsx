@@ -3,13 +3,14 @@
 import { Header } from "@/components/Header";
 import { Nav } from "@/components/Nav";
 import { SummaryTable } from "@/components/SummaryTable";
+import Loading from "@/components/Loading";
 import { useSummary } from "@/contexts/SummaryContext";
 import { useAuth } from "@/contexts/UserContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { isAuthenticated, isAuthenticatedBoolean, user, updateViewMode } = useAuth();
+  const { isAuthenticated, isAuthenticatedBoolean, user, updateViewMode, loading } = useAuth();
   const { reloadSummary } = useSummary();
   const pathname = usePathname();
   const router = useRouter();
@@ -34,6 +35,15 @@ export default function Home() {
     isAuthenticated();
     reloadSummary();
   }, [isAuthenticated, reloadSummary, isAuthenticatedBoolean, pathname , router]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex justify-center items-center">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-screen flex justify-center">

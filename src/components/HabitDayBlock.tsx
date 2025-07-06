@@ -54,7 +54,7 @@ export function HabitDayBlock({
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content className="min-w-[340px] max-h-[480px] p-6 bg-zinc-900 rounded-2xl flex flex-col z-50">
+        <Popover.Content className="lg:min-w-[340px] lg:max-w-[380px] min-w-[240px] max-w-[280px] max-h-[480px] p-3 lg:p-6 bg-zinc-900 rounded-2xl flex flex-col z-50">
           <div className="flex-shrink-0 flex flex-col select-none">
             <span className="font-semibold text-zinc-400">{dayOfWeek}</span>
             <span className="mt-1 font-extrabold leading-tight text-3xl">

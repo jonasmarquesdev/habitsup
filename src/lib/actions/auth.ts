@@ -127,7 +127,7 @@ export async function getCurrentUser() {
 
     const user = await prisma.user.findUnique({
       where: { id: payload.id },
-      select: { id: true, name: true, email: true, image: true },
+      select: { id: true, name: true, email: true, image: true, viewMode: true },
     });
 
     if (!user) {
@@ -280,4 +280,37 @@ export async function ensureTodayRecords(userId: string) {
   }
 
   return day;
+}
+
+export async function updateUserViewMode(viewMode: 'year' | 'month') {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth-token")?.value;
+    
+    if (!token) {
+      return { success: false, message: "Token não encontrado" };
+    }
+
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return { success: false, message: "Token inválido" };
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: payload.id },
+      data: { viewMode },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        viewMode: true,
+      }
+    });
+
+    return { success: true, user: updatedUser };
+  } catch (error) {
+    console.error("Erro ao atualizar viewMode:", error);
+    return { success: false, message: "Erro interno do servidor" };
+  }
 }

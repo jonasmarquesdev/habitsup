@@ -9,7 +9,8 @@ import {
   registerUser, 
   loginUser, 
   getCurrentUser, 
-  logoutUser 
+  logoutUser,
+  updateUserViewMode 
 } from "@/lib/actions/auth";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -137,6 +138,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     router.push("/login");
   };
 
+  const updateViewMode = async (viewMode: 'year' | 'month') => {
+    const updatePromise = updateUserViewMode(viewMode).then((result) => {
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    });
+
+    await showToastPromise(updatePromise, {
+      loading: "Atualizando visualização...",
+      success: "Visualização atualizada com sucesso!",
+      error: "Erro ao atualizar visualização.",
+    });
+
+    const result = await updatePromise;
+    
+    if (result.success && result.user) {
+      setUser({
+        ...result.user,
+        image: result.user.image || undefined,
+        viewMode: result.user.viewMode as 'year' | 'month' || undefined,
+      });
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -148,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         getUsuario,
         isAuthenticated,
         isAuthenticatedBoolean,
+        updateViewMode,
       }}
     >
       {children}

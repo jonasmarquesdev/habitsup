@@ -9,11 +9,26 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { isAuthenticated, isAuthenticatedBoolean } = useAuth();
+  const { isAuthenticated, isAuthenticatedBoolean, user, updateViewMode } = useAuth();
   const { reloadSummary } = useSummary();
   const pathname = usePathname();
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'year' | 'month'>('year');
+
+  // Sincronizar o viewMode com o usuário quando carregado
+  useEffect(() => {
+    if (user?.viewMode) {
+      setViewMode(user.viewMode);
+    }
+  }, [user?.viewMode]);
+
+  // Função para atualizar o viewMode tanto localmente quanto no banco
+  const handleViewModeChange = async (newViewMode: 'year' | 'month') => {
+    setViewMode(newViewMode);
+    if (user) {
+      await updateViewMode(newViewMode);
+    }
+  };
 
   useEffect(() => {
     isAuthenticated();
@@ -26,7 +41,7 @@ export default function Home() {
         {isAuthenticatedBoolean && (
           <>
             <Nav />
-            <Header viewMode={viewMode} setViewMode={setViewMode} />
+            <Header viewMode={viewMode} setViewMode={handleViewModeChange} />
             <SummaryTable viewMode={viewMode} />
           </>
         )}

@@ -9,4 +9,5 @@ export interface AuthContextType {
   isAuthenticated: () => boolean;
   isAuthenticatedBoolean: boolean;
   getUsuario: () => Promise<User | undefined>;
+  updateViewMode: (viewMode: 'year' | 'month') => Promise<void>;
 }

@@ -238,7 +238,7 @@ export function SummaryTable() {
               {/* Área com scroll horizontal */}
               <div 
                 ref={scrollContainerRef}
-                className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-700 py-3"
+                className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar py-3"
               >
                 <div className="grid grid-rows-7 grid-flow-col gap-3 relative z-0 min-w-max">
                   {summary.length === 0 && (

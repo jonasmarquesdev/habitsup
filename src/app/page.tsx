@@ -6,13 +6,14 @@ import { SummaryTable } from "@/components/SummaryTable";
 import { useSummary } from "@/contexts/SummaryContext";
 import { useAuth } from "@/contexts/UserContext";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { isAuthenticated, isAuthenticatedBoolean } = useAuth();
   const { reloadSummary } = useSummary();
   const pathname = usePathname();
   const router = useRouter();
+  const [viewMode, setViewMode] = useState<'year' | 'month'>('year');
 
   useEffect(() => {
     isAuthenticated();
@@ -25,8 +26,8 @@ export default function Home() {
         {isAuthenticatedBoolean && (
           <>
             <Nav />
-            <Header />
-            <SummaryTable />
+            <Header viewMode={viewMode} setViewMode={setViewMode} />
+            <SummaryTable viewMode={viewMode} />
           </>
         )}
       </div>

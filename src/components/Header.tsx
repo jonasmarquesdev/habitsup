@@ -3,12 +3,20 @@ import { Plus, X } from "phosphor-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { NewHabitForm } from "./NewHabitForm";
 import { useState } from "react";
+import { ViewModeButtons } from "./SummaryTable";
 
-export function Header() {
+interface HeaderProps {
+  viewMode: 'year' | 'month';
+  setViewMode: (mode: 'year' | 'month') => void;
+}
+
+export function Header({ viewMode, setViewMode }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex items-center justify-end">
+    <div className="w-full max-w-4xl mx-auto flex items-center justify-between">
+      <ViewModeButtons viewMode={viewMode} setViewMode={setViewMode} />
+      
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger
           type="button"

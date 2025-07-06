@@ -11,12 +11,45 @@ import { SummaryTableSkeleton } from "./SummaryTableSkeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
 
-export function SummaryTable() {
+// Componente para botões de seleção de modo de view
+export function ViewModeButtons({ 
+  viewMode, 
+  setViewMode 
+}: { 
+  viewMode: 'year' | 'month';
+  setViewMode: (mode: 'year' | 'month') => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setViewMode('year')}
+        className={`${viewMode === 'year' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm font-medium`}
+      >
+        Ano
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setViewMode('month')}
+        className={`${viewMode === 'month' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm font-medium`}
+      >
+        Mês
+      </Button>
+    </div>
+  );
+}
+
+interface SummaryTableProps {
+  viewMode: 'year' | 'month';
+}
+
+export function SummaryTable({ viewMode }: SummaryTableProps) {
   const { summary, reloadSummary } = useSummary();
   const [isLoading, setIsLoading] = useState(true);
   const [currentYear, setCurrentYear] = useState(dayjs().year());
   const [currentMonth, setCurrentMonth] = useState(dayjs().month());
-  const [viewMode, setViewMode] = useState<'year' | 'month'>('year');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const summaryDates = viewMode === 'year' 
@@ -136,27 +169,8 @@ export function SummaryTable() {
   return (
     <div className="w-full flex flex-col items-center">
       {/* Controles de navegação */}
-      <div className="flex flex-col items-center gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setViewMode('year')}
-            className={`${viewMode === 'year' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm font-medium`}
-          >
-            Ano
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setViewMode('month')}
-            className={`${viewMode === 'month' ? 'bg-violet-500 text-white' : ''} text-xs sm:text-sm font-medium`}
-          >
-            Mês
-          </Button>
-        </div>
-
-        {viewMode === 'month' && (
+      {viewMode === 'month' && (
+        <div className="flex flex-col items-center gap-4 mb-6">
           <div className="flex flex-col sm:flex-row items-center gap-2">
             <div className="flex items-center gap-2">
               <Button
@@ -214,8 +228,8 @@ export function SummaryTable() {
               </Button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Tabela de resumo */}
       <div className="w-full flex justify-center items-center habit-grid-container">

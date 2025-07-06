@@ -120,7 +120,10 @@ export function SummaryTable() {
       // Delay pequeno para garantir que o DOM foi renderizado
       setTimeout(() => {
         if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+          scrollContainerRef.current.scrollTo({
+            left: scrollContainerRef.current.scrollWidth,
+            behavior: 'smooth'
+          });
         }
       }, 100);
     }

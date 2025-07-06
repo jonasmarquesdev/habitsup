@@ -110,7 +110,7 @@ export function NewHabitForm({ onSuccess }: { onSuccess?: () => void }) {
 
       <button
         type="submit"
-        className="mt-6 rounded-lg p-4 flex items-center justify-center gap-3 font-semibold transition-colors border border-violet-500  text-white hover:bg-violet-700 hover:border-violet-400 hover:text-white"
+        className="mt-4 lg:mt-6 rounded-lg p-2 lg:p-4 flex items-center justify-center gap-3 font-semibold transition-colors border border-violet-500  text-white hover:bg-violet-700 hover:border-violet-400 hover:text-white"
       >
         <Check size={20} weight="bold" />
         Confirmar

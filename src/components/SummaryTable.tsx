@@ -147,19 +147,27 @@ export function SummaryTable({ viewMode }: SummaryTableProps) {
     loadData();
   }, [reloadSummary, currentYear, currentMonth, viewMode]);
 
-  // Scroll automático para o final (dia atual) quando o componente carregar
+  // Scroll automático para o final (dia atual) quando o componente carregar ou ao redimensionar a tela
   useEffect(() => {
-    if (!isLoading && scrollContainerRef.current && viewMode === 'year') {
-      // Delay pequeno para garantir que o DOM foi renderizado
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTo({
-            left: scrollContainerRef.current.scrollWidth,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
+    function scrollToEnd() {
+      if (!isLoading && scrollContainerRef.current && viewMode === 'year') {
+        scrollContainerRef.current.scrollTo({
+          left: scrollContainerRef.current.scrollWidth,
+          behavior: 'smooth'
+        });
+      }
     }
+
+    // Delay pequeno para garantir que o DOM foi renderizado
+    const timeout = setTimeout(scrollToEnd, 100);
+
+    // Adiciona listener para resize
+    window.addEventListener('resize', scrollToEnd);
+
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener('resize', scrollToEnd);
+    };
   }, [isLoading, summary, viewMode]);
 
   if (isLoading) {

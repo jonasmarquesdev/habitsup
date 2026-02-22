@@ -3,7 +3,9 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import { Summary } from "@/types/summary";
 import { getSummary } from "@/lib/actions/habits";
+import { useAuth } from "./UserContext";
 import dayjs from "@/lib/dayjs";
+import { useRouter } from "next/navigation";
 
 interface SummaryContextProps {
   summary: Summary;
@@ -17,8 +19,15 @@ const SummaryContext = createContext<SummaryContextProps>({
 
 export function SummaryProvider({ children }: { children: React.ReactNode }) {
   const [summary, setSummary] = useState<Summary>([]);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const reloadSummary = useCallback(async () => {
+    if (!isAuthenticated || !isAuthenticated()) {
+      setSummary([]);
+      router.push("/login");
+      return;
+    }
     try {
       const result = await getSummary();
       if (result.success) {
@@ -36,7 +45,7 @@ export function SummaryProvider({ children }: { children: React.ReactNode }) {
       setSummary([]);
       console.error("Erro ao carregar resumo:", error);
     }
-  }, []);
+  }, [isAuthenticated, router]);
 
   return (
     <SummaryContext.Provider value={{ summary, reloadSummary }}>

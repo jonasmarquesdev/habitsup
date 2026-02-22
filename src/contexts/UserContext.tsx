@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AuthContextType } from "@/interfaces/AuthContextType";
 import { User } from "@/interfaces/User";
 import { showToastPromise } from "@/components/ToastMessage";
@@ -23,7 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -35,23 +34,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         } else {
           setUser(null);
           setIsAuthenticatedBoolean(false);
-          if (pathname !== "/login" && pathname !== "/register") {
+          if (typeof window !== "undefined" && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
             router.push("/login");
           }
         }
       } catch {
         setUser(null);
         setIsAuthenticatedBoolean(false);
-        if (pathname !== "/login" && pathname !== "/register") {
+        if (typeof window !== "undefined" && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
           router.push("/login");
         }
       } finally {
         setLoading(false);
       }
     };
-    
     checkAuth();
-  }, [pathname, router]);
+  }, [router]);
 
   const register = async (name: string, email: string, password: string) => {
     const registerPromise = registerUser(name, email, password).then((result) => {

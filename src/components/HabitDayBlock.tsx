@@ -14,7 +14,8 @@ export function HabitDayBlock({
   amount,
   defaultCompleted = 0,
   date,
-}: HabitDay) {
+  ...props
+}: HabitDay & React.HTMLAttributes<HTMLButtonElement>) {
   const [completed, setCompleted] = useState(defaultCompleted);
 
   // Normalize date to UTC to avoid timezone issues
@@ -64,6 +65,7 @@ export function HabitDayBlock({
           }
         )}
         onClick={() => handleVerifyDateInPast()}
+        {...props}
       >
         <Orb amount={amount} completed={completed} date={date} style="violet" />
       </Popover.Trigger>

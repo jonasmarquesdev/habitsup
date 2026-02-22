@@ -149,24 +149,32 @@ export function SummaryTable({ viewMode }: SummaryTableProps) {
 
   // Scroll automático para o final (dia atual) quando o componente carregar ou ao redimensionar a tela
   useEffect(() => {
-    function scrollToEnd() {
+    function scrollToToday() {
       if (!isLoading && scrollContainerRef.current && viewMode === 'year') {
-        scrollContainerRef.current.scrollTo({
-          left: scrollContainerRef.current.scrollWidth,
-          behavior: 'smooth'
-        });
+        const today = dayjs().utc().format('YYYY-MM-DD');
+        const blocks = Array.from(scrollContainerRef.current.querySelectorAll('.habit-day-block')) as HTMLElement[];
+        let todayBlock: HTMLElement | null = null;
+        for (const block of blocks) {
+          const blockDate = block.getAttribute('data-date');
+          if (blockDate === today) {
+            todayBlock = block;
+            break;
+          }
+        }
+        if (todayBlock) {
+          scrollContainerRef.current.scrollTo({
+            left: todayBlock.offsetLeft - 40,
+            behavior: 'smooth'
+          });
+        }
       }
     }
 
-    // Delay pequeno para garantir que o DOM foi renderizado
-    const timeout = setTimeout(scrollToEnd, 100);
-
-    // Adiciona listener para resize
-    window.addEventListener('resize', scrollToEnd);
-
+    const timeout = setTimeout(scrollToToday, 100);
+    window.addEventListener('resize', scrollToToday);
     return () => {
       clearTimeout(timeout);
-      window.removeEventListener('resize', scrollToEnd);
+      window.removeEventListener('resize', scrollToToday);
     };
   }, [isLoading, summary, viewMode]);
 
@@ -282,13 +290,14 @@ export function SummaryTable({ viewMode }: SummaryTableProps) {
                           const currentDate = dayjs(date).utc().format('YYYY-MM-DD');
                           return summaryDate === currentDate;
                         });
-
+                        const currentDate = dayjs(date).utc().format('YYYY-MM-DD');
                         return (
                           <HabitDayBlock
                             key={date.toString()}
                             date={date}
                             amount={dayInSummary?.amount ?? 0}
                             defaultCompleted={dayInSummary?.completed}
+                            data-date={currentDate}
                           />
                         );
                       })}

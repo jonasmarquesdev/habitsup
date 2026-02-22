@@ -261,7 +261,7 @@ export function HabitList({ date, onCompletedChanged }: HabitListProps) {
                     onCheckedChange={() => handleToggleHabit(habit.id)}
                     checked={isChecked}
                     disabled={isDateInPast || isLoading}
-                    className="flex items-center gap-3 group disabled:cursor-not-allowed"
+                    className="flex items-center gap-3 group cursor-pointer disabled:cursor-not-allowed"
                   >
                     <div className={`h-8 w-8 flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 rounded-lg transition-all duration-300 ${
                       isLoading 
